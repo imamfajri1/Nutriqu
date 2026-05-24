@@ -201,27 +201,27 @@
       <div class="rounded-2xl px-6 py-5 relative overflow-hidden shadow-sm
         {% if energy_status == 'Cukup' %}bg-sig-teal
         {% elif energy_status == 'Lebih' %}bg-sig-coral
-        {% else %}bg-white border border-hairline{% endif %}">
+        {% else %}bg-amber-50 border border-amber-200{% endif %}">
 
         <div class="flex items-start justify-between">
           <div class="flex-1">
             <p class="text-xs font-semibold uppercase tracking-wider mb-1.5
-              {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white/55{% else %}text-muted{% endif %}">
+              {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white/55{% else %}text-amber-700/70{% endif %}">
               Status Energi Hari Ini
             </p>
             <p class="text-3xl font-semibold mb-1
-              {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white{% else %}text-ink{% endif %}">
+              {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white{% else %}text-amber-800{% endif %}">
               {{ energy_status }}
             </p>
             {% if today_total %}
             <p class="text-sm
-              {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white/65{% else %}text-muted{% endif %}">
+              {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white/65{% else %}text-amber-700{% endif %}">
               {{ today_total.energy_kcal|indo_number:0 }} kkal dari {{ tdee|indo_number:0 }} kkal target
             </p>
             {% endif %}
           </div>
           <div class="opacity-20 select-none">
-            <svg class="w-10 h-10 {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white{% else %}text-muted{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-10 h-10 {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white{% else %}text-amber-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {% if energy_status == 'Lebih' %}
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
               {% elif energy_status == 'Cukup' %}
@@ -235,10 +235,10 @@
 
         {% if today_total and tdee %}
         <div class="mt-4 h-1.5 rounded-full overflow-hidden
-          {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}bg-white/20{% else %}bg-surface-strong{% endif %}">
+          {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}bg-white/20{% else %}bg-amber-200{% endif %}">
           <div class="h-full rounded-full
-            {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}bg-white/80{% else %}bg-primary{% endif %}"
-            style="width: min({{ progress.energy_kcal_pct|default:0 }}%, 100%)"></div>
+            {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}bg-white/80{% else %}bg-amber-500{% endif %}"
+            style="width:0" data-progress="{{ progress.energy_kcal_pct|default:0|stringformat:'g' }}"></div>
         </div>
         {% endif %}
       </div>
@@ -284,7 +284,7 @@
               {% with pct=progress.energy_kcal_pct %}
                 {% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-[#1b4332]{% endif %}
               {% endwith %}"
-              style="width: min({{ progress.energy_kcal_pct|default:0 }}%, 100%)"></div>
+              style="width:0" data-progress="{{ progress.energy_kcal_pct|default:0|stringformat:'g' }}"></div>
           </div>
         </div>
 
@@ -296,7 +296,7 @@
             <div class="h-1 bg-surface-strong rounded-full overflow-hidden mt-2 mb-1.5">
               <div class="h-full rounded-full
                 {% with pct=progress.protein_g_pct %}{% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-[#1b4332]{% endif %}{% endwith %}"
-                style="width: min({{ progress.protein_g_pct|default:0 }}%, 100%)"></div>
+                style="width:0" data-progress="{{ progress.protein_g_pct|default:0|stringformat:'g' }}"></div>
             </div>
             <p class="text-xs text-muted">/ {{ targets.protein_g|indo_number }}g</p>
           </div>
@@ -306,7 +306,7 @@
             <div class="h-1 bg-surface-strong rounded-full overflow-hidden mt-2 mb-1.5">
               <div class="h-full rounded-full
                 {% with pct=progress.fat_g_pct %}{% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-[#1b4332]{% endif %}{% endwith %}"
-                style="width: min({{ progress.fat_g_pct|default:0 }}%, 100%)"></div>
+                style="width:0" data-progress="{{ progress.fat_g_pct|default:0|stringformat:'g' }}"></div>
             </div>
             <p class="text-xs text-muted">/ {{ targets.fat_g|indo_number }}g</p>
           </div>
@@ -316,7 +316,7 @@
             <div class="h-1 bg-surface-strong rounded-full overflow-hidden mt-2 mb-1.5">
               <div class="h-full rounded-full
                 {% with pct=progress.carbohydrate_g_pct %}{% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-[#1b4332]{% endif %}{% endwith %}"
-                style="width: min({{ progress.carbohydrate_g_pct|default:0 }}%, 100%)"></div>
+                style="width:0" data-progress="{{ progress.carbohydrate_g_pct|default:0|stringformat:'g' }}"></div>
             </div>
             <p class="text-xs text-muted">/ {{ targets.carbohydrate_g|indo_number }}g</p>
           </div>
@@ -345,16 +345,25 @@
 
     <!-- Grafik tren -->
     <div class="lg:col-span-3 bg-white rounded-2xl p-6 border border-hairline shadow-sm">
-      <div class="flex items-start justify-between mb-5">
+      <div class="flex items-start justify-between mb-4">
         <div>
           <h2 class="text-base font-semibold text-ink">Tren Asupan 7 Hari Terakhir</h2>
           <p class="text-xs text-muted mt-0.5">Energi harian (kkal) vs target TDEE</p>
         </div>
-        <a href="{% url 'weekly-report' %}" class="text-xs text-muted hover:text-ink transition-colors">
-          Lihat laporan lengkap →
+        <a href="{% url 'weekly-report' %}" class="text-xs text-sig-teal hover:underline font-medium transition-colors">
+          Laporan lengkap →
         </a>
       </div>
+
       {% if chart_data.has_nonzero %}
+      <!-- Legenda status warna -->
+      <div class="flex items-center gap-4 mb-4 flex-wrap">
+        <span class="flex items-center gap-1.5 text-[11px] text-muted"><span class="w-2.5 h-2.5 rounded-sm bg-[#4ade80] inline-block"></span>Cukup (80–110%)</span>
+        <span class="flex items-center gap-1.5 text-[11px] text-muted"><span class="w-2.5 h-2.5 rounded-sm bg-[#fb923c] inline-block"></span>Kurang (&lt;80%)</span>
+        <span class="flex items-center gap-1.5 text-[11px] text-muted"><span class="w-2.5 h-2.5 rounded-sm bg-[#f87171] inline-block"></span>Lebih (&gt;110%)</span>
+        <span class="flex items-center gap-1.5 text-[11px] text-muted"><span class="w-2.5 h-0.5 bg-[#f97316] inline-block" style="border-top:2px dashed #f97316;height:0"></span>Target TDEE</span>
+      </div>
+
       <div style="position:relative; height:200px;">
         <canvas id="trendChart"></canvas>
       </div>
@@ -362,41 +371,70 @@
       (function () {
         var labels     = {{ chart_data.labels_json|safe }};
         var energyData = {{ chart_data.energy_json|safe }};
-        var tdee       = {{ tdee|default:0 }};
+        var tdee       = {{ tdee|default:0|stringformat:'g' }};
         function draw() {
           if (typeof Chart === 'undefined') { return setTimeout(draw, 30); }
           var ctx = document.getElementById('trendChart');
           if (!ctx) return;
+          var barColors = energyData.map(function(v) {
+            if (!v || v === 0) return '#e2e8f0';
+            if (tdee <= 0) return '#4ade80';
+            var r = v / tdee;
+            if (r < 0.5)  return '#fde68a';
+            if (r < 0.8)  return '#fb923c';
+            if (r <= 1.1) return '#4ade80';
+            return '#f87171';
+          });
           var datasets = [{
             label: 'Asupan (kkal)',
             data: energyData,
-            borderColor: '#1b4332',
-            backgroundColor: 'rgba(27,67,50,0.08)',
-            borderWidth: 2, fill: true, tension: 0.4,
-            pointRadius: 4, pointHoverRadius: 6,
-            pointBackgroundColor: '#1b4332', pointBorderColor: '#ffffff', pointBorderWidth: 2,
+            backgroundColor: barColors,
+            hoverBackgroundColor: barColors.map(function(c) { return c; }),
+            borderRadius: 6,
+            borderSkipped: false,
           }];
           if (tdee > 0) {
             datasets.push({
+              type: 'line',
               label: 'Target TDEE (' + Math.round(tdee) + ' kkal)',
               data: labels.map(function () { return tdee; }),
-              borderColor: '#aa2d00', borderWidth: 1.5,
-              borderDash: [6, 3], pointRadius: 0, fill: false, tension: 0,
+              borderColor: '#f97316',
+              borderWidth: 2,
+              borderDash: [6, 3],
+              pointRadius: 0,
+              fill: false,
+              tension: 0,
             });
           }
           new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: { labels: labels, datasets: datasets },
             options: {
               responsive: true, maintainAspectRatio: false,
               interaction: { mode: 'index', intersect: false },
               plugins: {
-                legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } },
-                tooltip: { mode: 'index', intersect: false },
+                legend: { display: false },
+                tooltip: {
+                  mode: 'index', intersect: false,
+                  callbacks: {
+                    afterBody: function(items) {
+                      if (tdee <= 0) return;
+                      var v = items[0] ? items[0].parsed.y : 0;
+                      return ['', '  ' + Math.round(v / tdee * 100) + '% dari target TDEE'];
+                    }
+                  }
+                },
               },
               scales: {
-                x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } },
-                y: { beginAtZero: true, grid: { color: '#f0f0f0' }, border: { display: false }, ticks: { font: { size: 11 } } },
+                x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: '#6b7280' } },
+                y: {
+                  beginAtZero: true,
+                  suggestedMax: Math.max.apply(null, energyData.concat([tdee])) * 1.15,
+                  grid: { color: '#f1f5f9' }, border: { display: false },
+                  ticks: { font: { size: 11 }, color: '#6b7280',
+                    callback: function(v) { return v >= 1000 ? (v/1000).toFixed(1)+'k' : v; }
+                  }
+                },
               }
             }
           });
@@ -405,132 +443,153 @@
       })();
       </script>
       {% else %}
-      <div class="flex items-center justify-center h-[160px] text-muted text-sm">
-        Belum ada data asupan minggu ini.
+      <div class="flex flex-col items-center justify-center h-[200px] gap-2">
+        <svg class="w-10 h-10 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        <p class="text-sm text-muted">Belum ada data asupan minggu ini.</p>
       </div>
       {% endif %}
     </div>
 
-    <!-- Ringkasan donut -->
+    <!-- Ringkasan makro -->
     <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-hairline shadow-sm">
-      <h2 class="text-base font-semibold text-ink mb-5">Ringkasan Hari Ini</h2>
+      <h2 class="text-base font-semibold text-ink mb-4">Ringkasan Hari Ini</h2>
 
       {% if today_total and progress %}
-      <!-- Donut chart -->
-      <div class="flex flex-col items-center mb-5">
-        <div class="relative" style="width:130px;height:130px;">
-          <canvas id="summaryDonut" width="130" height="130"></canvas>
+
+      <!-- Energi ring + label -->
+      <div class="flex items-center gap-4 mb-5 pb-5 border-b border-hairline">
+        <div class="relative flex-shrink-0" style="width:88px;height:88px;">
+          <canvas id="summaryDonut" width="88" height="88"></canvas>
+          <script>
+          (function() {
+            function draw() {
+              if (typeof Chart === 'undefined') return setTimeout(draw, 30);
+              var ctx = document.getElementById('summaryDonut');
+              if (!ctx) return;
+              var pct    = {{ progress.energy_kcal_pct|default:0|stringformat:'g' }};
+              var filled = Math.min(pct, 100);
+              var empty  = pct >= 100 ? 0.001 : 100 - pct;
+              var color  = pct > 110 ? '#f87171' : pct >= 80 ? '#4ade80' : '#fb923c';
+              new Chart(ctx, {
+                type: 'doughnut',
+                data: { datasets: [{ data: [filled, empty], backgroundColor: [color, '#f1f5f9'], borderWidth: 0, hoverBorderWidth: 0 }] },
+                options: { responsive: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+              });
+            }
+            draw();
+          })();
+          </script>
           <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span class="text-lg font-bold text-ink">{{ progress.energy_kcal_pct|default:0 }}%</span>
-            <span class="text-[10px] text-muted text-center leading-tight">dari<br>target</span>
+            <span class="text-base font-bold text-ink leading-none">{{ progress.energy_kcal_pct|default:0 }}%</span>
+            <span class="text-[9px] text-muted mt-0.5">energi</span>
           </div>
         </div>
-      </div>
-      <script>
-      (function() {
-        function draw() {
-          if (typeof Chart === 'undefined') return setTimeout(draw, 30);
-          var ctx = document.getElementById('summaryDonut');
-          if (!ctx) return;
-          var pct    = {{ progress.energy_kcal_pct|default:0 }};
-          var filled = Math.min(pct, 100);
-          var empty  = pct >= 100 ? 0.001 : 100 - pct;
-          var color  = pct > 100 ? '#aa2d00' : pct >= 90 ? '#1b4332' : '#52b788';
-          new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-              datasets: [{
-                data: [filled, empty],
-                backgroundColor: [color, '#f0f0f0'],
-                borderWidth: 0,
-                hoverBorderWidth: 0,
-              }]
-            },
-            options: {
-              responsive: false,
-              cutout: '72%',
-              plugins: { legend: { display: false }, tooltip: { enabled: false } }
-            }
-          });
-        }
-        draw();
-      })();
-      </script>
-
-      <!-- Legend -->
-      <div class="space-y-2.5">
-        <a href="{% url 'weekly-report' %}" class="flex items-center justify-between group">
-          <div class="flex items-center gap-2.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#22c55e] flex-shrink-0"></span>
-            <span class="text-sm text-body group-hover:text-ink transition-colors">Protein</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="text-sm font-semibold
-              {% if progress.protein_g_pct > 100 %}text-sig-coral{% else %}text-ink{% endif %}">
-              {{ progress.protein_g_pct|default:0 }}%
-            </span>
-            <svg class="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </div>
-        </a>
-        <a href="{% url 'weekly-report' %}" class="flex items-center justify-between group">
-          <div class="flex items-center gap-2.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#f97316] flex-shrink-0"></span>
-            <span class="text-sm text-body group-hover:text-ink transition-colors">Lemak</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="text-sm font-semibold
-              {% if progress.fat_g_pct > 100 %}text-sig-coral{% else %}text-ink{% endif %}">
-              {{ progress.fat_g_pct|default:0 }}%
-            </span>
-            <svg class="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </div>
-        </a>
-        <a href="{% url 'weekly-report' %}" class="flex items-center justify-between group">
-          <div class="flex items-center gap-2.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#3b82f6] flex-shrink-0"></span>
-            <span class="text-sm text-body group-hover:text-ink transition-colors">Karbo</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="text-sm font-semibold
-              {% if progress.carbohydrate_g_pct > 100 %}text-sig-coral{% else %}text-ink{% endif %}">
-              {{ progress.carbohydrate_g_pct|default:0 }}%
-            </span>
-            <svg class="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </div>
-        </a>
-        <a href="{% url 'weekly-report' %}" class="flex items-center justify-between group">
-          <div class="flex items-center gap-2.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#d1d5db] flex-shrink-0"></span>
-            <span class="text-sm text-body group-hover:text-ink transition-colors">Serat</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="text-sm font-semibold text-ink">{{ progress.fiber_g_pct|default:"—" }}%</span>
-            <svg class="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </div>
-        </a>
+        <div>
+          <p class="text-2xl font-bold text-ink leading-none">{{ today_total.energy_kcal|floatformat:0 }}</p>
+          <p class="text-xs text-muted mt-0.5">kkal hari ini</p>
+          <p class="text-xs text-muted mt-2">Target: <span class="font-semibold text-body">{{ targets.energy_kcal|floatformat:0 }} kkal</span></p>
+          <span class="inline-block mt-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full
+            {% if progress.energy_kcal_pct > 110 %}bg-red-50 text-red-600
+            {% elif progress.energy_kcal_pct >= 80 %}bg-emerald-50 text-emerald-700
+            {% else %}bg-orange-50 text-orange-600{% endif %}">
+            {% if progress.energy_kcal_pct > 110 %}Lebih{% elif progress.energy_kcal_pct >= 80 %}Cukup{% else %}Kurang{% endif %}
+          </span>
+        </div>
       </div>
 
-      <!-- Fiber tip jika kurang -->
-      {% if progress.fiber_g_pct and progress.fiber_g_pct < 90 %}
-      <div class="mt-4 pt-4 border-t border-hairline flex items-start gap-2.5">
-        <span class="text-base flex-shrink-0">🌿</span>
-        <p class="text-xs text-muted leading-relaxed">
-          <strong class="text-ink">Serat masih kurang {{ 100|add:"-1"|add:""|default:"" }}</strong>
-          dari kebutuhan harianmu.
-        </p>
+      <!-- Progress bar makro -->
+      <div class="space-y-3.5">
+
+        {% with pct=progress.protein_g_pct|default:0 %}
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
+              <span class="text-xs font-medium text-body">Protein</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-xs text-muted">{{ today_total.protein_g|floatformat:1 }}g</span>
+              <span class="text-[10px] text-muted/60">/ {{ targets.protein_g|floatformat:0 }}g</span>
+              <span class="text-xs font-bold ml-1 {% if pct > 110 %}text-red-500{% elif pct >= 80 %}text-blue-600{% else %}text-orange-500{% endif %}">{{ pct }}%</span>
+            </div>
+          </div>
+          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full rounded-full {% if pct > 110 %}bg-red-400{% elif pct >= 80 %}bg-blue-500{% else %}bg-orange-400{% endif %}"
+                 style="width: 0" data-progress="{{ pct|stringformat:'g' }}"></div>
+          </div>
+        </div>
+        {% endwith %}
+
+        {% with pct=progress.fat_g_pct|default:0 %}
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0"></span>
+              <span class="text-xs font-medium text-body">Lemak</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-xs text-muted">{{ today_total.fat_g|floatformat:1 }}g</span>
+              <span class="text-[10px] text-muted/60">/ {{ targets.fat_g|floatformat:0 }}g</span>
+              <span class="text-xs font-bold ml-1 {% if pct > 110 %}text-red-500{% elif pct >= 80 %}text-orange-600{% else %}text-orange-400{% endif %}">{{ pct }}%</span>
+            </div>
+          </div>
+          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full rounded-full {% if pct > 110 %}bg-red-400{% elif pct >= 80 %}bg-orange-400{% else %}bg-orange-300{% endif %}"
+                 style="width: 0" data-progress="{{ pct|stringformat:'g' }}"></div>
+          </div>
+        </div>
+        {% endwith %}
+
+        {% with pct=progress.carbohydrate_g_pct|default:0 %}
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-violet-500 flex-shrink-0"></span>
+              <span class="text-xs font-medium text-body">Karbo</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-xs text-muted">{{ today_total.carbohydrate_g|floatformat:1 }}g</span>
+              <span class="text-[10px] text-muted/60">/ {{ targets.carbohydrate_g|floatformat:0 }}g</span>
+              <span class="text-xs font-bold ml-1 {% if pct > 110 %}text-red-500{% elif pct >= 80 %}text-violet-600{% else %}text-orange-500{% endif %}">{{ pct }}%</span>
+            </div>
+          </div>
+          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full rounded-full {% if pct > 110 %}bg-red-400{% elif pct >= 80 %}bg-violet-500{% else %}bg-orange-400{% endif %}"
+                 style="width: 0" data-progress="{{ pct|stringformat:'g' }}"></div>
+          </div>
+        </div>
+        {% endwith %}
+
+        {% with pct=progress.fiber_g_pct|default:0 %}
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+              <span class="text-xs font-medium text-body">Serat</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-xs text-muted">{{ today_total.fiber_g|floatformat:1 }}g</span>
+              <span class="text-[10px] text-muted/60">/ {{ targets.fiber_g|floatformat:0 }}g</span>
+              <span class="text-xs font-bold ml-1 {% if pct > 110 %}text-red-500{% elif pct >= 80 %}text-emerald-600{% else %}text-orange-500{% endif %}">{{ pct }}%</span>
+            </div>
+          </div>
+          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full rounded-full {% if pct > 110 %}bg-red-400{% elif pct >= 80 %}bg-emerald-500{% else %}bg-orange-400{% endif %}"
+                 style="width: 0" data-progress="{{ pct|stringformat:'g' }}"></div>
+          </div>
+        </div>
+        {% endwith %}
+
       </div>
-      {% endif %}
+
+      <a href="{% url 'weekly-report' %}" class="mt-4 flex items-center justify-center gap-1.5 text-xs text-sig-teal hover:underline font-medium pt-4 border-t border-hairline">
+        Lihat laporan lengkap →
+      </a>
 
       {% else %}
-      <div class="flex flex-col items-center justify-center py-8 text-center">
+      <div class="flex flex-col items-center justify-center py-10 text-center">
         <div class="w-16 h-16 rounded-full bg-surface-soft flex items-center justify-center mb-3">
           <svg class="w-7 h-7 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>

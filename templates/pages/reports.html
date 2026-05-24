@@ -8,9 +8,9 @@ document.addEventListener('DOMContentLoaded', function () {
   var ctx = document.getElementById('weeklyChart');
   if (!ctx) return;
 
-  var labels     = {{ chart_data.labels|safe }};
-  var energyData = {{ chart_data.energy|safe }};
-  var tdee       = {{ tdee|default:0 }};
+  var labels     = {{ chart_data.labels_json|safe }};
+  var energyData = {{ chart_data.energy_json|safe }};
+  var tdee       = {{ tdee|default:0|stringformat:'g' }};
 
   function init() {
     if (window.nutriquChartPresets) {
