@@ -1,0 +1,52 @@
+{% load nutriqu_filters %}
+<div class="rounded-xl p-6
+  {% if imt_category.color == 'green' %}bg-sig-teal text-white
+  {% elif imt_category.color == 'red' %}bg-sig-coral text-white
+  {% elif imt_category.color == 'yellow' %}bg-sig-cream border border-yellow-300/60
+  {% else %}bg-surface-soft border border-hairline{% endif %}">
+
+  <p class="text-xs font-semibold uppercase tracking-wider mb-3
+    {% if imt_category.color == 'green' or imt_category.color == 'red' %}text-white/55{% else %}text-muted{% endif %}">
+    Indeks Massa Tubuh
+  </p>
+
+  {% if imt_value %}
+  <div class="flex items-end gap-2 mb-3">
+    <span class="text-5xl font-normal leading-none
+      {% if imt_category.color == 'green' or imt_category.color == 'red' %}text-white{% else %}text-ink{% endif %}">
+      {{ imt_value }}
+    </span>
+    <span class="text-sm pb-1
+      {% if imt_category.color == 'green' or imt_category.color == 'red' %}text-white/55{% else %}text-muted{% endif %}">
+      kg/m²
+    </span>
+  </div>
+
+  <!-- Badge status IMT sesuai design.md §7.7 -->
+  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium
+    {% if imt_category.color == 'green' %}bg-white/15 text-white
+    {% elif imt_category.color == 'red' %}bg-white/15 text-white
+    {% elif imt_category.color == 'yellow' %}bg-[#fef9c3] text-[#854d0e]
+    {% else %}bg-surface-strong text-body{% endif %}">
+    {{ imt_category.label }}
+  </span>
+
+  <p class="text-xs mt-2.5
+    {% if imt_category.color == 'green' or imt_category.color == 'red' %}text-white/55{% else %}text-muted{% endif %}">
+    {{ imt_category.detail }}
+  </p>
+
+  <div class="mt-4 pt-3 border-t text-xs
+    {% if imt_category.color == 'green' or imt_category.color == 'red' %}border-white/15 text-white/40{% else %}border-hairline text-muted{% endif %}">
+    {{ latest_imt.weight_kg }} kg &middot; {{ latest_imt.height_cm }} cm &middot;
+    {{ latest_imt.recorded_at|date:"d M Y" }}
+  </div>
+
+  {% else %}
+  <p class="text-3xl font-normal text-muted mb-3">—</p>
+  <p class="text-sm text-muted">
+    Belum ada data berat badan.
+    <a href="{% url 'imt-add' %}" class="text-ink underline underline-offset-1">Tambah sekarang</a>.
+  </p>
+  {% endif %}
+</div>

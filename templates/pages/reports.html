@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load nutriqu_filters %}
+{% block title %}Laporan Mingguan{% endblock %}
+
+{% block extra_head %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var ctx = document.getElementById('weeklyChart');
+  if (!ctx) return;
+
+  var labels     = {{ chart_data.labels|safe }};
+  var energyData = {{ chart_data.energy|safe }};
+  var tdee       = {{ tdee|default:0 }};
+
+  function init() {
+    if (window.nutriquChartPresets) {
+      nutriquChartPresets.bar(ctx, labels, energyData, tdee);
+    } else {
+      setTimeout(init, 100);
+    }
+  }
+  init();
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+  <div>
+    <h1 class="text-4xl font-normal text-ink">Laporan Mingguan</h1>
+    <p class="text-sm text-muted mt-1.5">7 hari terakhir asupan harianmu.</p>
+  </div>
+
+  <!-- Grafik energi 7 hari -->
+  <div class="bg-white border border-hairline rounded-xl p-8">
+    <h2 class="text-lg font-medium text-ink mb-6">Asupan Energi 7 Hari</h2>
+    <canvas id="weeklyChart" height="80"></canvas>
+  </div>
+
+  <!-- Rata-rata harian -->
+  {% if average %}
+  <div class="bg-cream rounded-xl p-6">
+    <p class="text-xs font-semibold text-ink uppercase tracking-wider mb-5">Rata-Rata Harian</p>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="text-center">
+        <p class="text-3xl font-normal text-ink">{{ average.energy_kcal|indo_number:0 }}</p>
+        <p class="text-xs text-muted mt-1">kkal Energi</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-normal text-ink">{{ average.protein_g|indo_number }}</p>
+        <p class="text-xs text-muted mt-1">g Protein</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-normal text-ink">{{ average.fat_g|indo_number }}</p>
+        <p class="text-xs text-muted mt-1">g Lemak</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-normal text-ink">{{ average.carbohydrate_g|indo_number }}</p>
+        <p class="text-xs text-muted mt-1">g Karbohidrat</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-normal text-ink">{{ average.fiber_g|indo_number }}</p>
+        <p class="text-xs text-muted mt-1">g Serat</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Tabel detail per hari -->
+  <div class="bg-white border border-hairline rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-surface-soft border-b border-hairline">
+          <th class="text-left px-6 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Tanggal</th>
+          <th class="text-right px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Energi (kkal)</th>
+          <th class="text-right px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Protein (g)</th>
+          <th class="text-right px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Lemak (g)</th>
+          <th class="text-right px-6 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Karbo (g)</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-hairline">
+        {% for day in weekly_data %}
+        <tr class="{% if not day.total %}opacity-40{% endif %}">
+          <td class="px-6 py-3.5 font-medium text-ink">{{ day.date|date:"l, d M" }}</td>
+          {% if day.total %}
+          <td class="px-4 py-3.5 text-right text-ink">{{ day.total.energy_kcal|indo_number:0 }}</td>
+          <td class="px-4 py-3.5 text-right text-body">{{ day.total.protein_g|indo_number }}</td>
+          <td class="px-4 py-3.5 text-right text-body">{{ day.total.fat_g|indo_number }}</td>
+          <td class="px-6 py-3.5 text-right text-body">{{ day.total.carbohydrate_g|indo_number }}</td>
+          {% else %}
+          <td colspan="4" class="px-4 py-3.5 text-center text-muted text-xs">Tidak ada data</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% load nutriqu_filters %}
+<!-- Hasil pencarian makanan — HTMX partial -->
+{% if not query %}
+<p class="text-sm text-muted px-4 py-3">Ketik minimal 2 karakter untuk mencari.</p>
+{% elif not foods %}
+<p class="text-sm text-muted px-4 py-3">Makanan "<strong>{{ query }}</strong>" tidak ditemukan.</p>
+{% else %}
+<ul class="divide-y divide-hairline" role="listbox">
+  {% for food in foods %}
+  <li class="px-4 py-3 cursor-pointer hover:bg-surface-soft transition-colors group"
+      role="option"
+      onclick="selectFood(
+        {{ food.pk }},
+        '{{ food.name|escapejs }}',
+        {{ food.nutritionfact.energy_kcal|default:0 }},
+        {{ food.nutritionfact.protein_g|default:0 }},
+        {{ food.nutritionfact.fat_g|default:0 }},
+        {{ food.nutritionfact.carbohydrate_g|default:0 }}
+      )">
+    <div class="flex justify-between items-center gap-3">
+      <div class="min-w-0 flex items-center gap-2.5">
+        <span class="w-6 h-6 rounded-full bg-sig-teal/10 flex items-center justify-center shrink-0 text-[10px]">🥦</span>
+        <div class="min-w-0">
+          <p class="text-sm font-medium text-ink truncate group-hover:text-sig-teal transition-colors">{{ food.name }}</p>
+          <p class="text-xs text-muted">{{ food.code }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        {% if food.nutritionfact %}
+        <div class="text-right text-xs">
+          <p class="font-semibold text-body">{{ food.nutritionfact.energy_kcal|indo_number:0 }} kkal</p>
+          <p class="text-muted">/ 100g</p>
+        </div>
+        {% endif %}
+        <span class="w-5 h-5 rounded-full bg-sig-teal text-white text-sm leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">+</span>
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}

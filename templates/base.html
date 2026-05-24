@@ -1,0 +1,184 @@
+{% load static nutriqu_filters %}
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Nutriqu{% endblock %} — Kenali tubuhmu, kelola gizimu.</title>
+
+  <!-- Tailwind CSS (build lokal — tidak butuh internet) -->
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+  <!-- Inter font — Google Fonts (opsional, fallback ke system font jika offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+
+  <!-- HTMX (lokal) -->
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+
+  <!-- Alpine.js (lokal) -->
+  <script src="{% static 'js/alpine.min.js' %}" defer></script>
+
+  <!-- Chart.js + config (defer — tersedia saat DOMContentLoaded, sebelum blok extra_head dieksekusi) -->
+  <script src="{% static 'js/chart.min.js' %}" defer></script>
+  <script src="{% static 'js/chart-config.js' %}" defer></script>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-white font-sans text-body antialiased"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+  {% if user.is_authenticated %}
+  <nav class="h-16 bg-white border-b border-hairline sticky top-0 z-50" x-data="{ mobileOpen: false }">
+    <div class="max-w-6xl mx-auto px-6 h-full flex items-center justify-between">
+
+      <!-- Logo -->
+      <a href="{% url 'dashboard' %}" class="text-ink font-semibold text-lg tracking-tight shrink-0">
+        Nutriqu
+      </a>
+
+      <!-- Nav desktop -->
+      <div class="hidden md:flex items-center gap-1 text-sm">
+        <a href="{% url 'dashboard' %}"
+           class="px-3 py-1.5 rounded-lg transition-colors
+             {% if request.resolver_match.url_name == 'dashboard' %}text-ink font-medium{% else %}text-body hover:text-ink{% endif %}">
+          Dashboard
+        </a>
+        <a href="{% url 'daily-log' %}"
+           class="px-3 py-1.5 rounded-lg transition-colors
+             {% if request.resolver_match.url_name == 'daily-log' or request.resolver_match.url_name == 'food-recall' %}text-ink font-medium{% else %}text-body hover:text-ink{% endif %}">
+          Log Makanan
+        </a>
+        <a href="{% url 'weekly-report' %}"
+           class="px-3 py-1.5 rounded-lg transition-colors
+             {% if request.resolver_match.url_name == 'weekly-report' %}text-ink font-medium{% else %}text-body hover:text-ink{% endif %}">
+          Laporan
+        </a>
+      </div>
+
+      <!-- User cluster -->
+      <div class="flex items-center gap-3">
+        <a href="{% url 'profile' %}"
+           class="hidden md:inline-flex items-center gap-2 text-sm text-muted hover:text-ink transition-colors">
+          <span class="w-7 h-7 rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-xs font-semibold text-ink">
+            {{ user.username|first|upper }}
+          </span>
+          <span>{{ user.username }}</span>
+        </a>
+        <a href="{% url 'logout' %}"
+           class="text-sm border border-hairline text-body hover:text-ink hover:border-ink px-3 py-1.5 rounded-lg transition-colors">
+          Keluar
+        </a>
+        <!-- Tombol hamburger mobile -->
+        <button @click="mobileOpen = !mobileOpen"
+                class="md:hidden p-1.5 rounded-lg text-muted hover:text-ink hover:bg-surface-soft transition-colors">
+          <svg x-show="!mobileOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          <svg x-show="mobileOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Menu mobile -->
+    <div x-show="mobileOpen"
+         x-transition:enter="transition ease-out duration-150"
+         x-transition:enter-start="opacity-0 -translate-y-1"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         class="md:hidden absolute top-16 left-0 right-0 bg-white border-t border-hairline shadow-xl"
+         style="display:none">
+      <div class="px-6 py-2">
+        <a href="{% url 'dashboard' %}" class="flex items-center py-3 text-sm text-body hover:text-ink border-b border-hairline transition-colors
+          {% if request.resolver_match.url_name == 'dashboard' %}font-medium text-ink{% endif %}">
+          Dashboard
+        </a>
+        <a href="{% url 'daily-log' %}" class="flex items-center py-3 text-sm text-body hover:text-ink border-b border-hairline transition-colors
+          {% if request.resolver_match.url_name == 'daily-log' or request.resolver_match.url_name == 'food-recall' %}font-medium text-ink{% endif %}">
+          Log Makanan
+        </a>
+        <a href="{% url 'weekly-report' %}" class="flex items-center py-3 text-sm text-body hover:text-ink border-b border-hairline transition-colors
+          {% if request.resolver_match.url_name == 'weekly-report' %}font-medium text-ink{% endif %}">
+          Laporan
+        </a>
+        <a href="{% url 'profile' %}" class="flex items-center py-3 text-sm text-body hover:text-ink transition-colors">
+          Profil — {{ user.username }}
+        </a>
+      </div>
+    </div>
+  </nav>
+  {% endif %}
+
+  <!-- Flash messages — border-left treatment sesuai design.md §7.9 -->
+  {% if messages %}
+  <div class="max-w-6xl mx-auto px-6 pt-4 space-y-2" id="messages">
+    {% for message in messages %}
+    <div class="flex items-start gap-3 px-4 py-3 rounded-md text-sm border-l-[3px] flex items-center justify-between
+      {% if message.tags == 'success' %}bg-[#f0fdf4] border-[#39bf45] text-[#166534]
+      {% elif message.tags == 'error' %}bg-[#fef2f2] border-[#ef4444] text-[#991b1b]
+      {% elif message.tags == 'warning' %}bg-[#fffbeb] border-[#d97706] text-[#92400e]
+      {% else %}bg-[#eff6ff] border-[#458fff] text-[#1e40af]{% endif %}"
+      x-data="{ show: true }" x-show="show" x-transition>
+      <span class="flex-1">{{ message }}</span>
+      <button @click="show = false" class="ml-4 text-xl leading-none opacity-40 hover:opacity-70 transition-opacity shrink-0">×</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Konten utama -->
+  <main class="{% block main_class %}max-w-6xl mx-auto px-6 py-10{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% if not user.is_authenticated %}
+  <footer class="border-t border-hairline py-8 text-center text-sm text-muted">
+    © 2025 Nutriqu · Data gizi: DKBM Indonesia · AKG: Permenkes No.28/2019
+  </footer>
+  {% else %}
+  <footer class="border-t border-hairline mt-12 py-5 text-center text-xs text-muted">
+    Data gizi: DKBM Indonesia (Nutrisurvey) · AKG: Permenkes No.28/2019
+  </footer>
+  {% endif %}
+
+  <!-- Toast notification container -->
+  <div id="toast-root"
+       x-data="{
+         toasts: [],
+         add(msg, type) {
+           const id = Date.now();
+           this.toasts.push({ id, msg, type });
+           setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== id); }, 3500);
+         }
+       }"
+       @show-toast.window="add($event.detail.message, $event.detail.type || 'success')"
+       class="fixed bottom-6 right-6 z-50 space-y-3 pointer-events-none">
+    <template x-for="toast in toasts" :key="toast.id">
+      <div x-show="true"
+           x-transition:enter="transition ease-out duration-300"
+           x-transition:enter-start="opacity-0 translate-y-3 scale-95"
+           x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+           x-transition:leave="transition ease-in duration-200"
+           x-transition:leave-start="opacity-100 scale-100"
+           x-transition:leave-end="opacity-0 scale-95"
+           class="pointer-events-auto flex items-center gap-3 pl-4 pr-5 py-3.5 rounded-xl shadow-lg text-sm font-medium min-w-[260px]"
+           :class="toast.type === 'success' ? 'bg-sig-teal text-white' : 'bg-sig-coral text-white'">
+        <span class="w-5 h-5 shrink-0 flex items-center justify-center">
+          <svg x-show="toast.type === 'success'" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+          </svg>
+          <svg x-show="toast.type !== 'success'" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 3a9 9 0 110 18A9 9 0 0112 3z"/>
+          </svg>
+        </span>
+        <span x-text="toast.msg"></span>
+      </div>
+    </template>
+  </div>
+
+  <!-- Nutriqu global JS -->
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load nutriqu_filters %}
+{% block title %}Log Makanan{% endblock %}
+
+{% block extra_head %}
+<script>
+function initFoodPanel() {
+  return {
+    food: null,
+    mealType: '{{ meal_choices.0.0 }}',
+    amountG: 100,
+
+    get estimatedKcal() {
+      if (!this.food) return 0;
+      return Math.round(this.food.kcal * this.amountG / 100);
+    },
+
+    selectFood(id, name, kcal, protein, fat, carbo) {
+      this.food = {
+        id, name,
+        kcal:    parseFloat(kcal)    || 0,
+        protein: parseFloat(protein) || 0,
+        fat:     parseFloat(fat)     || 0,
+        carbo:   parseFloat(carbo)   || 0,
+      };
+      document.getElementById('search-results').innerHTML = '';
+      document.getElementById('food-search-input').value = '';
+    },
+
+    clearFood() { this.food = null; },
+
+    onAddSuccess() {
+      this.clearFood();
+      window.dispatchEvent(new CustomEvent('show-toast', {
+        detail: { message: 'Makanan berhasil ditambahkan ke diary!', type: 'success' }
+      }));
+      setTimeout(() => location.reload(), 700);
+    },
+  };
+}
+
+function selectFood(id, name, kcal, protein, fat, carbo) {
+  const el = document.getElementById('food-panel');
+  if (el && el._x_dataStack) el._x_dataStack[0].selectFood(id, name, kcal, protein, fat, carbo);
+}
+
+function onFoodAddSuccess() {
+  const el = document.getElementById('food-panel');
+  if (el && el._x_dataStack) el._x_dataStack[0].onAddSuccess();
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- ══ Kalender mingguan ══ -->
+  <div class="bg-white border border-hairline rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-6 py-4 flex items-center justify-between border-b border-hairline">
+      <div>
+        <h1 class="text-lg font-semibold text-ink">Diary Makanan</h1>
+        <p class="text-xs text-muted mt-0.5">{{ selected_date|date:"l, d F Y" }}</p>
+      </div>
+      <a href="{% url 'food-recall' %}"
+         class="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-ink border border-hairline rounded-lg px-3 py-1.5 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+        </svg>
+        Salin Kemarin
+      </a>
+    </div>
+    <div class="px-4 py-4">
+      <div class="grid grid-cols-7 gap-1.5">
+        {% for day in calendar_days %}
+        <a href="?date={{ day.date|date:'Y-m-d' }}"
+           class="flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl transition-colors
+             {% if day.is_selected %}bg-sig-teal{% elif day.is_today %}border-2 border-sig-teal{% else %}hover:bg-surface-soft{% endif %}">
+          <span class="text-[10px] font-semibold uppercase tracking-wide
+            {% if day.is_selected %}text-white/70{% elif day.is_today %}text-sig-teal{% else %}text-muted{% endif %}">
+            {{ day.date|indo_day }}
+          </span>
+          <span class="text-sm font-bold
+            {% if day.is_selected %}text-white{% elif day.is_today %}text-sig-teal{% else %}text-ink{% endif %}">
+            {{ day.date|date:"j" }}
+          </span>
+          <span class="w-1.5 h-1.5 rounded-full
+            {% if day.has_data %}{% if day.is_selected %}bg-white/50{% else %}bg-sig-teal{% endif %}{% endif %}">
+          </span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Grid utama ══ -->
+  {% if is_today %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="food-panel" x-data="initFoodPanel()">
+
+    <!-- Kolom 1: Cari Makanan -->
+    <div class="bg-white border border-hairline rounded-2xl shadow-sm overflow-hidden">
+      <div class="px-5 py-3.5 bg-sig-teal flex items-center gap-2.5">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <h2 class="text-sm font-semibold text-white">Cari Makanan</h2>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" id="food-search-input" name="q"
+            hx-get="{% url 'food-search' %}"
+            hx-trigger="keyup changed delay:300ms"
+            hx-target="#search-results"
+            hx-indicator="#search-spinner"
+            placeholder="Ketik nama makanan..."
+            class="w-full h-10 pl-9 pr-3 border border-hairline rounded-lg text-sm text-ink
+                   focus:outline-none focus:border-sig-teal focus:ring-2 focus:ring-sig-teal/20"
+            autocomplete="off">
+        </div>
+        <div id="search-spinner" class="htmx-indicator text-xs text-muted flex items-center gap-1.5">
+          <svg class="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          Mencari...
+        </div>
+        <div id="search-results"
+             class="border border-hairline rounded-xl overflow-hidden empty:hidden shadow-sm bg-white max-h-72 overflow-y-auto"></div>
+
+        <!-- Panduan porsi -->
+        <div class="bg-sig-cream rounded-xl p-3.5 mt-1">
+          <p class="text-[10px] font-semibold text-ink uppercase tracking-wider mb-1.5">Estimasi Porsi</p>
+          <div class="space-y-0.5 text-[11px] text-muted">
+            <p>🍚 1 centong nasi ≈ 100 g</p>
+            <p>🍗 1 potong ayam ≈ 80 g</p>
+            <p>🥚 1 butir telur ≈ 55 g</p>
+            <p>🫙 1 sdm minyak ≈ 10 g</p>
+            <p>🥬 1 mangkuk sayur ≈ 150 g</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kolom 2: Detail Makanan -->
+    <div class="bg-white border border-hairline rounded-2xl shadow-sm overflow-hidden">
+
+      <!-- Empty state -->
+      <div x-show="!food" class="flex flex-col items-center justify-center h-full min-h-[320px] py-12 px-6 text-center">
+        <div class="w-14 h-14 rounded-full bg-surface-soft border border-hairline flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+          </svg>
+        </div>
+        <p class="text-sm font-medium text-ink mb-1.5">Pilih makanan dari hasil pencarian</p>
+        <p class="text-xs text-muted leading-relaxed">Klik salah satu makanan di sebelah kiri untuk melihat detail nutrisi dan menambahkannya ke diary.</p>
+      </div>
+
+      <!-- Food detail -->
+      <div x-show="food" style="display:none"
+           x-transition:enter="transition ease-out duration-150"
+           x-transition:enter-start="opacity-0"
+           x-transition:enter-end="opacity-100">
+
+        <!-- Food name header -->
+        <div class="px-5 py-4 bg-sig-teal/5 border-b border-hairline flex items-start justify-between gap-3">
+          <div>
+            <p class="text-[10px] font-semibold text-sig-teal uppercase tracking-wider mb-0.5">Makanan Dipilih</p>
+            <p class="text-sm font-semibold text-ink leading-snug" x-text="food?.name"></p>
+          </div>
+          <button @click="clearFood()"
+                  class="text-muted hover:text-ink text-xl leading-none w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/80 transition-colors shrink-0">×</button>
+        </div>
+
+        <div class="p-5 space-y-4">
+          <!-- Macro grid (per 100g) -->
+          <div>
+            <p class="text-[10px] text-muted mb-2 text-center">Nilai gizi per 100 gram</p>
+            <div class="grid grid-cols-4 gap-2">
+              <div class="text-center bg-surface-soft rounded-xl p-3">
+                <p class="text-base font-bold text-ink" x-text="food ? Math.round(food.kcal) : 0"></p>
+                <p class="text-[10px] text-muted mt-0.5">kkal</p>
+              </div>
+              <div class="text-center bg-blue-50 rounded-xl p-3">
+                <p class="text-base font-bold text-blue-700" x-text="food ? food.protein.toFixed(1) : 0"></p>
+                <p class="text-[10px] text-muted mt-0.5">Protein</p>
+              </div>
+              <div class="text-center bg-amber-50 rounded-xl p-3">
+                <p class="text-base font-bold text-amber-700" x-text="food ? food.fat.toFixed(1) : 0"></p>
+                <p class="text-[10px] text-muted mt-0.5">Lemak</p>
+              </div>
+              <div class="text-center bg-emerald-50 rounded-xl p-3">
+                <p class="text-base font-bold text-emerald-700" x-text="food ? food.carbo.toFixed(1) : 0"></p>
+                <p class="text-[10px] text-muted mt-0.5">Karbo</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form tambah -->
+          <form hx-post="{% url 'add-entry' %}"
+                hx-target="#nutrition-summary"
+                hx-swap="outerHTML"
+                hx-on::after-request="if (event.detail.successful) { onFoodAddSuccess(); }"
+                class="space-y-3">
+            {% csrf_token %}
+            <input type="hidden" name="food_id" :value="food?.id">
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Waktu Makan</label>
+                <select name="meal_type" x-model="mealType"
+                  class="w-full h-10 px-3 border border-hairline rounded-lg text-sm text-ink
+                         focus:outline-none focus:border-sig-teal bg-white">
+                  {% for code, label in meal_choices %}
+                  <option value="{{ code }}">{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Jumlah (g)</label>
+                <input type="number" name="amount_g" step="1" min="1" x-model.number="amountG"
+                  class="w-full h-10 px-3 border border-hairline rounded-lg text-sm text-ink
+                         focus:outline-none focus:border-sig-teal focus:ring-2 focus:ring-sig-teal/20">
+              </div>
+            </div>
+
+            <!-- Estimasi kalori -->
+            <div class="flex items-center justify-between bg-sig-teal/5 border border-sig-teal/15 rounded-xl px-4 py-2.5">
+              <p class="text-xs text-muted">Estimasi untuk <span class="font-medium text-ink" x-text="amountG + ' gram'"></span></p>
+              <p class="text-sm font-bold text-sig-teal" x-text="estimatedKcal.toLocaleString('id-ID') + ' kkal'"></p>
+            </div>
+
+            <button type="submit"
+              class="w-full h-11 bg-sig-teal text-white text-sm font-semibold rounded-xl
+                     hover:bg-[#0d5a55] transition-colors active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              Tambah ke Diary
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kolom 3: Ringkasan Gizi -->
+    <div class="space-y-4">
+      {% include 'components/nutrition_summary.html' %}
+      <a href="{% url 'nutrition-summary' %}"
+         hx-get="{% url 'nutrition-summary' %}"
+         hx-target="#nutrition-summary"
+         hx-swap="outerHTML"
+         class="flex items-center justify-center gap-1.5 text-xs text-muted hover:text-ink transition-colors">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Refresh ringkasan
+      </a>
+    </div>
+
+  </div><!-- /food-panel grid -->
+
+  {% else %}
+  <!-- Viewing a past date — no add form -->
+  <div class="flex items-center gap-3 px-5 py-4 bg-[#fffbeb] border-l-[3px] border-[#d97706] rounded-r-xl text-sm">
+    <svg class="w-4 h-4 text-[#d97706] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <p class="text-[#92400e]">Kamu sedang melihat log <strong>{{ selected_date|date:"d F Y" }}</strong>.
+      <a href="{% url 'daily-log' %}" class="underline underline-offset-2 font-medium">Kembali ke hari ini</a> untuk menambahkan makanan.
+    </p>
+  </div>
+  {% endif %}
+
+  <!-- ══ Daftar entri ══ -->
+  <div class="space-y-4">
+    <h2 class="text-base font-semibold text-ink">
+      {% if is_today %}Sudah Dicatat Hari Ini{% else %}Catatan {{ selected_date|date:"d F Y" }}{% endif %}
+    </h2>
+
+    {% for meal_code, meal_data in grouped_entries.items %}
+    {% if meal_data.entries %}
+    <div class="bg-white border border-hairline rounded-2xl overflow-hidden shadow-sm">
+      <div class="px-6 py-3.5 flex items-center justify-between border-b border-hairline
+        {% if meal_code == 'breakfast' %}bg-amber-50/60
+        {% elif meal_code == 'lunch' %}bg-orange-50/60
+        {% elif meal_code == 'dinner' %}bg-indigo-50/60
+        {% else %}bg-emerald-50/60{% endif %}">
+        <div class="flex items-center gap-2.5">
+          <span class="text-base">{% if meal_code == 'breakfast' %}🌅{% elif meal_code == 'lunch' %}☀️{% elif meal_code == 'dinner' %}🌙{% else %}🍵{% endif %}</span>
+          <h3 class="text-sm font-semibold text-ink">{{ meal_data.label }}</h3>
+        </div>
+        <span class="text-xs font-medium text-muted px-2 py-0.5 bg-white rounded-full border border-hairline">{{ meal_data.entries|length }} item</span>
+      </div>
+      <div class="divide-y divide-hairline">
+        {% for entry in meal_data.entries %}
+        <div id="entry-{{ entry.pk }}" class="px-6 py-3.5 flex items-center gap-4 hover:bg-surface-soft/40 transition-colors">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-ink">{{ entry.display_name }}</p>
+            <p class="text-xs text-muted mt-0.5">{{ entry.amount_g|indo_number:0 }} gram</p>
+          </div>
+          {% if entry.food and entry.food.nutritionfact %}
+          <div class="text-right text-xs shrink-0">
+            <p class="text-sm font-medium text-body">{{ entry.food.nutritionfact.energy_kcal|indo_number:0 }} kkal</p>
+            <p class="text-muted">per 100g</p>
+          </div>
+          {% endif %}
+          {% if is_today %}
+          <button
+            hx-delete="{% url 'delete-entry' entry.pk %}"
+            hx-target="#entry-{{ entry.pk }}"
+            hx-swap="outerHTML swap:200ms"
+            hx-confirm="Hapus entri ini?"
+            class="text-xs text-muted hover:text-red-500 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-red-50 shrink-0 border border-transparent hover:border-red-100">
+            Hapus
+          </button>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    {% if not total.energy_kcal %}
+    <div class="text-center py-12 border-2 border-dashed border-hairline rounded-2xl bg-surface-soft/30">
+      <div class="w-12 h-12 rounded-full bg-surface-soft border border-hairline flex items-center justify-center mx-auto mb-3">
+        <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+      </div>
+      <p class="text-sm font-medium text-ink mb-1">Belum ada makanan dicatat</p>
+      <p class="text-xs text-muted">{% if is_today %}Gunakan form di atas untuk mulai mencatat.{% else %}Tidak ada catatan untuk tanggal ini.{% endif %}</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

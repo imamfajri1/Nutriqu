@@ -1,0 +1,757 @@
+/*
+ * nutriqu.css — Nutriqu Design System
+ * Filosofi: editorial tenang, kanvas putih, tipografi gelap, whitespace lega
+ * Gunakan sebagai pelengkap Tailwind CDN (token tambahan & animasi)
+ */
+
+/* ─── 1. Design Tokens ──────────────────────────────────────── */
+
+:root {
+  /* Core */
+  --color-primary:        #181d26;
+  --color-primary-active: #0d1218;
+  --color-canvas:         #ffffff;
+  --color-surface-soft:   #f8fafc;
+  --color-surface-strong: #e0e2e6;
+  --color-surface-dark:   #181d26;
+  --color-hairline:       #dddddd;
+
+  /* Text */
+  --color-ink:            #181d26;
+  --color-body:           #333840;
+  --color-muted:          #41454d;
+  --color-on-primary:     #ffffff;
+
+  /* Semantic */
+  --color-link:           #1b61c9;
+  --color-success:        #006400;
+  --color-success-border: #39bf45;
+  --color-info:           #254fad;
+  --color-info-border:    #458fff;
+  --color-warning:        #b45309;
+
+  /* Signature Surfaces */
+  --color-sig-teal:       #0a3d3a;
+  --color-sig-sage:       #e8f5e9;
+  --color-sig-peach:      #fcab79;
+  --color-sig-mint:       #a8d8c4;
+  --color-sig-cream:      #f5e9d4;
+  --color-sig-coral:      #aa2d00;
+
+  /* Spacing (base 4px) */
+  --spacing-xxs:     4px;
+  --spacing-xs:      8px;
+  --spacing-sm:      12px;
+  --spacing-md:      16px;
+  --spacing-lg:      24px;
+  --spacing-xl:      32px;
+  --spacing-xxl:     48px;
+  --spacing-section: 96px;
+
+  /* Border Radius */
+  --rounded-xs:   2px;
+  --rounded-sm:   6px;
+  --rounded-md:   10px;
+  --rounded-lg:   12px;
+  --rounded-full: 9999px;
+}
+
+/* ─── 2. Global Resets (additif — tidak override Tailwind) ─── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Pastikan font Inter dipakai jika Tailwind belum aktif */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+               Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+img, svg { display: block; }
+
+/* ─── 3. Scrollbar ──────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface-soft);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-strong);
+  border-radius: var(--rounded-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* ─── 4. Focus Ring (keyboard accessibility) ────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--color-info-border);
+  outline-offset: 2px;
+}
+
+/* Remove outline untuk elemen yang pakai focus ring Tailwind */
+.focus\:ring-info-border:focus {
+  outline: none;
+}
+
+/* ─── 5. Container ──────────────────────────────────────────── */
+
+.nq-container {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: var(--spacing-xxl);
+}
+
+@media (max-width: 768px) {
+  .nq-container {
+    padding-inline: var(--spacing-md);
+  }
+}
+
+/* ─── 6. Navbar ─────────────────────────────────────────────── */
+
+.nq-navbar {
+  height: 64px;
+  background: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Nav link hover — underline slide-in */
+.nq-nav-link {
+  position: relative;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: var(--color-body);
+  border-radius: var(--rounded-sm);
+  transition: color 0.15s ease;
+}
+.nq-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 12px;
+  right: 12px;
+  height: 1.5px;
+  background: var(--color-ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+.nq-nav-link:hover,
+.nq-nav-link.active {
+  color: var(--color-ink);
+}
+.nq-nav-link.active::after {
+  transform: scaleX(1);
+}
+.nq-nav-link:hover::after {
+  transform: scaleX(0.5);
+}
+
+/* Mobile menu overlay */
+.nq-mobile-menu {
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  background: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+  box-shadow: 0 8px 24px rgba(24, 29, 38, 0.08);
+}
+
+/* ─── 7. Tombol ─────────────────────────────────────────────── */
+
+/* Primary button */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  border: none;
+  border-radius: var(--rounded-lg);
+  cursor: pointer;
+  transition: background 0.12s ease, transform 0.1s ease;
+  min-height: 44px;
+}
+.btn-primary:hover {
+  background: #232a35;
+}
+.btn-primary:active {
+  background: var(--color-primary-active);
+  transform: translateY(1px);
+}
+
+/* Secondary button */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-lg);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  min-height: 44px;
+}
+.btn-secondary:hover {
+  background: var(--color-surface-soft);
+  border-color: #c4c7cc;
+}
+.btn-secondary:active {
+  background: var(--color-surface-strong);
+}
+
+/* Danger button */
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-canvas);
+  color: #dc2626;
+  font-size: 16px;
+  font-weight: 500;
+  border: 1px solid #fca5a5;
+  border-radius: var(--rounded-lg);
+  cursor: pointer;
+  transition: background 0.12s ease;
+  min-height: 44px;
+}
+.btn-danger:hover {
+  background: #fef2f2;
+}
+
+/* Icon button circular */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-full);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  flex-shrink: 0;
+}
+.btn-icon:hover {
+  background: var(--color-surface-soft);
+  border-color: #c4c7cc;
+}
+
+/* ─── 8. Input & Form ───────────────────────────────────────── */
+
+.nq-input {
+  width: 100%;
+  height: 44px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 400;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+.nq-input::placeholder {
+  color: var(--color-muted);
+}
+.nq-input:focus {
+  border-color: var(--color-info-border);
+  box-shadow: 0 0 0 2px rgba(69, 143, 255, 0.15);
+}
+.nq-input:disabled {
+  background: var(--color-surface-soft);
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+
+.nq-select {
+  width: 100%;
+  height: 44px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-size: 14px;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-sm);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2341454d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.nq-select:focus {
+  border-color: var(--color-info-border);
+  box-shadow: 0 0 0 2px rgba(69, 143, 255, 0.15);
+}
+
+.nq-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ink);
+  margin-bottom: 6px;
+}
+
+.nq-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Validation messages */
+.nq-error-msg {
+  font-size: 13px;
+  color: #dc2626;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nq-success-msg {
+  font-size: 13px;
+  color: var(--color-success);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ─── 9. Cards ──────────────────────────────────────────────── */
+
+/* Standard content card */
+.card {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-md);
+  padding: var(--spacing-xl);
+}
+
+/* Soft surface card */
+.card-soft {
+  background: var(--color-surface-soft);
+  border-radius: var(--rounded-md);
+  padding: var(--spacing-lg);
+}
+
+/* Signature dark card */
+.card-dark {
+  background: var(--color-surface-dark);
+  color: var(--color-on-primary);
+  border-radius: var(--rounded-lg);
+  padding: var(--spacing-xxl);
+}
+
+/* Signature teal card */
+.card-teal {
+  background: var(--color-sig-teal);
+  color: #ffffff;
+  border-radius: var(--rounded-lg);
+  padding: var(--spacing-xxl);
+}
+
+/* Cream callout */
+.card-cream {
+  background: var(--color-sig-cream);
+  color: var(--color-ink);
+  border-radius: var(--rounded-md);
+  padding: var(--spacing-lg);
+}
+
+/* Coral alert */
+.card-coral {
+  background: var(--color-sig-coral);
+  color: #ffffff;
+  border-radius: var(--rounded-lg);
+  padding: var(--spacing-lg);
+}
+
+/* ─── 10. Progress Bar ──────────────────────────────────────── */
+
+.progress-track {
+  height: 8px;
+  background: var(--color-surface-strong);
+  border-radius: var(--rounded-full);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: var(--rounded-full);
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.progress-fill--normal  { background: var(--color-primary); }
+.progress-fill--success { background: var(--color-success); }
+.progress-fill--over    { background: var(--color-sig-coral); }
+
+/* ─── 11. Badge & Tag ───────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--rounded-sm);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.badge--normal     { background: #dcfce7; color: #006400; }
+.badge--underweight{ background: #dbeafe; color: #1e40af; }
+.badge--overweight { background: #fef9c3; color: #854d0e; }
+.badge--obese      { background: #fee2e2; color: #dc2626; }
+
+.tag-meal {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: var(--color-surface-soft);
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--rounded-sm);
+}
+
+/* ─── 12. Tabel ─────────────────────────────────────────────── */
+
+.nq-table-wrap {
+  border-radius: var(--rounded-md);
+  overflow: hidden;
+  border: 1px solid var(--color-hairline);
+}
+
+.nq-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.nq-table thead tr {
+  background: var(--color-surface-soft);
+}
+
+.nq-table th {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ink);
+  text-align: left;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.nq-table th.right,
+.nq-table td.right {
+  text-align: right;
+}
+
+.nq-table tbody tr {
+  background: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+  transition: background 0.1s ease;
+}
+
+.nq-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.nq-table tbody tr:hover {
+  background: var(--color-surface-soft);
+}
+
+.nq-table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--color-body);
+}
+
+/* ─── 13. Alert & Notifikasi Inline ────────────────────────── */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--rounded-md);
+  border-left: 3px solid transparent;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.alert--success {
+  background: #f0fdf4;
+  border-left-color: #39bf45;
+  color: #166534;
+}
+.alert--warning {
+  background: #fffbeb;
+  border-left-color: #d97706;
+  color: #92400e;
+}
+.alert--error {
+  background: #fef2f2;
+  border-left-color: #ef4444;
+  color: #991b1b;
+}
+.alert--info {
+  background: #eff6ff;
+  border-left-color: #458fff;
+  color: #1e40af;
+}
+
+/* ─── 14. Stat Card ─────────────────────────────────────────── */
+
+.stat-card {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-md);
+  padding: var(--spacing-xl);
+}
+
+.stat-card__label {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.stat-card__value {
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+
+.stat-card__unit {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-muted);
+  margin-left: 4px;
+}
+
+.stat-card__sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-muted);
+  margin-top: var(--spacing-xs);
+}
+
+/* ─── 15. HTMX Loading States ───────────────────────────────── */
+
+/* Spinner default — htmx-indicator */
+.htmx-indicator {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+  opacity: 1;
+}
+
+/* Opacity ringan pada elemen yang sedang di-swap */
+.htmx-swapping {
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+/* ─── 16. Micro-animations ──────────────────────────────────── */
+
+/* Fade in — untuk elemen baru (HTMX swap) */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease forwards;
+}
+
+/* Slide down — untuk mobile menu */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-down {
+  animation: slideDown 0.2s ease forwards;
+}
+
+/* Progress bar fill animasi */
+@keyframes growWidth {
+  from { width: 0%; }
+}
+
+.progress-fill {
+  animation: growWidth 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Pulse subtle — untuk loading state */
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.animate-pulse-subtle {
+  animation: subtlePulse 1.5s ease-in-out infinite;
+}
+
+/* Hover lift — untuk card interaktif */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+}
+
+/* ─── 17. Search Results Dropdown ───────────────────────────── */
+
+#search-results {
+  transition: opacity 0.15s ease;
+}
+
+#search-results:not(:empty) {
+  animation: fadeIn 0.15s ease forwards;
+}
+
+#search-results li {
+  transition: background 0.1s ease;
+  cursor: pointer;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+#search-results li:hover {
+  background: var(--color-surface-soft);
+}
+
+/* ─── 18. Empty State ───────────────────────────────────────── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xxl) var(--spacing-xl);
+  text-align: center;
+  border: 1.5px dashed var(--color-hairline);
+  border-radius: var(--rounded-md);
+  color: var(--color-muted);
+}
+
+.empty-state__icon {
+  width: 40px;
+  height: 40px;
+  color: var(--color-surface-strong);
+  margin-bottom: var(--spacing-md);
+}
+
+.empty-state__title {
+  font-size: 14px;
+  color: var(--color-muted);
+  margin-bottom: 4px;
+}
+
+.empty-state__sub {
+  font-size: 12px;
+  color: var(--color-muted);
+  opacity: 0.7;
+}
+
+/* ─── 19. Page Rhythm Helpers ───────────────────────────────── */
+
+.section-gap {
+  padding-top: var(--spacing-section);
+  padding-bottom: var(--spacing-section);
+}
+
+.content-gap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* Divider tipis */
+.nq-divider {
+  border: none;
+  border-top: 1px solid var(--color-hairline);
+  margin: var(--spacing-xl) 0;
+}
+
+/* ─── 20. Responsive Utilities ──────────────────────────────── */
+
+/* Tabel horizontal scroll di mobile */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  /* Stat cards stack full width */
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Grafik full width */
+  .chart-container {
+    width: 100% !important;
+  }
+
+  /* Padding section lebih kecil di mobile */
+  .section-gap {
+    padding-top: var(--spacing-xxl);
+    padding-bottom: var(--spacing-xxl);
+  }
+}
+
+/* ─── 21. Print ─────────────────────────────────────────────── */
+
+@media print {
+  .nq-navbar,
+  .btn-primary,
+  .btn-secondary,
+  nav {
+    display: none !important;
+  }
+
+  body {
+    font-size: 12px;
+    color: #000;
+  }
+}

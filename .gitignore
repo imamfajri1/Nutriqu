@@ -1,0 +1,47 @@
+# Environment — JANGAN COMMIT credentials
+.env
+.env.local
+.env.production
+.env.staging
+
+# Database lokal
+db.sqlite3
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+env/
+.venv/
+venv/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# staticfiles/ SENGAJA tidak di-ignore — di-commit untuk Vercel static serving
+# Jika migrasi ke Vercel build command, tambahkan kembali:
+# staticfiles/
+
+# Media uploads (foto OCR user — tidak pernah disimpan ke disk, tapi jaga-jaga)
+media/
+
+# Log files
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Node (Tailwind build)
+node_modules/

@@ -1,0 +1,93 @@
+{% load nutriqu_filters %}
+<!-- Ringkasan gizi hari ini — HTMX partial -->
+<div id="nutrition-summary" class="bg-surface-soft rounded-xl p-6">
+
+  <p class="text-xs font-semibold text-muted uppercase tracking-wider mb-4">Asupan Hari Ini</p>
+
+  {% if not tdee %}
+  <div class="text-center py-4">
+    <p class="text-sm text-muted mb-3">Lengkapi profil untuk melihat target harianmu.</p>
+    <div class="flex flex-col gap-2 text-xs">
+      <a href="{% url 'profile' %}" class="text-ink underline underline-offset-1">Lengkapi profil</a>
+      <a href="{% url 'imt-add' %}" class="text-ink underline underline-offset-1">Tambah data berat badan</a>
+    </div>
+  </div>
+
+  {% elif not today_total %}
+  <div class="text-center py-6">
+    <p class="text-3xl font-normal text-muted mb-1">0</p>
+    <p class="text-xs text-muted">dari {{ tdee|indo_number:0 }} kkal target</p>
+    <p class="text-xs text-muted mt-4">Belum ada makanan dicatat hari ini.</p>
+  </div>
+
+  {% else %}
+
+  <!-- Energi: angka besar + progress bar sesuai design.md §7.6 -->
+  <div class="mb-5">
+    <div class="flex items-end justify-between mb-2">
+      <div>
+        <span class="text-3xl font-normal text-ink">{{ today_total.energy_kcal|indo_number:0 }}</span>
+        <span class="text-sm text-muted ml-1">kkal</span>
+      </div>
+      <div class="text-right">
+        <span class="text-xs text-muted">dari {{ tdee|indo_number:0 }} kkal</span>
+        <p class="text-xs font-medium
+          {% with pct=progress.energy_kcal_pct %}
+            {% if pct < 90 %}text-ink
+            {% elif pct <= 100 %}text-success
+            {% else %}text-sig-coral{% endif %}
+          {% endwith %}">
+          {{ progress.energy_kcal_pct|default:0 }}%
+        </p>
+      </div>
+    </div>
+    <div class="h-2 bg-surface-strong rounded-full overflow-hidden">
+      <div class="h-full rounded-full transition-all duration-500
+        {% with pct=progress.energy_kcal_pct %}
+          {% if pct < 90 %}bg-primary
+          {% elif pct <= 100 %}bg-success
+          {% else %}bg-sig-coral{% endif %}
+        {% endwith %}"
+        style="width: min({{ progress.energy_kcal_pct|default:0 }}%, 100%)"></div>
+    </div>
+  </div>
+
+  <!-- Makronutrien — mini progress bar sesuai design.md §7.6 -->
+  <div class="grid grid-cols-3 gap-3">
+
+    <div class="bg-white rounded-lg p-3">
+      <p class="text-xs font-medium text-ink mb-0.5">Protein</p>
+      <p class="text-base font-normal text-ink">{{ today_total.protein_g|indo_number }}g</p>
+      <div class="h-1.5 bg-surface-strong rounded-full overflow-hidden mt-1.5">
+        <div class="h-full rounded-full
+          {% with pct=progress.protein_g_pct %}{% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-primary{% endif %}{% endwith %}"
+          style="width: min({{ progress.protein_g_pct|default:0 }}%, 100%)"></div>
+      </div>
+      <p class="text-xs text-muted mt-1">/ {{ targets.protein_g|indo_number }}g</p>
+    </div>
+
+    <div class="bg-white rounded-lg p-3">
+      <p class="text-xs font-medium text-ink mb-0.5">Lemak</p>
+      <p class="text-base font-normal text-ink">{{ today_total.fat_g|indo_number }}g</p>
+      <div class="h-1.5 bg-surface-strong rounded-full overflow-hidden mt-1.5">
+        <div class="h-full rounded-full
+          {% with pct=progress.fat_g_pct %}{% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-primary{% endif %}{% endwith %}"
+          style="width: min({{ progress.fat_g_pct|default:0 }}%, 100%)"></div>
+      </div>
+      <p class="text-xs text-muted mt-1">/ {{ targets.fat_g|indo_number }}g</p>
+    </div>
+
+    <div class="bg-white rounded-lg p-3">
+      <p class="text-xs font-medium text-ink mb-0.5">Karbo</p>
+      <p class="text-base font-normal text-ink">{{ today_total.carbohydrate_g|indo_number }}g</p>
+      <div class="h-1.5 bg-surface-strong rounded-full overflow-hidden mt-1.5">
+        <div class="h-full rounded-full
+          {% with pct=progress.carbohydrate_g_pct %}{% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-primary{% endif %}{% endwith %}"
+          style="width: min({{ progress.carbohydrate_g_pct|default:0 }}%, 100%)"></div>
+      </div>
+      <p class="text-xs text-muted mt-1">/ {{ targets.carbohydrate_g|indo_number }}g</p>
+    </div>
+
+  </div>
+  {% endif %}
+</div>

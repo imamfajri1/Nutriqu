@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load nutriqu_filters %}
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_head %}{% endblock %}
+
+{% block main_class %}max-w-6xl mx-auto px-6 py-8{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+  <!-- Header -->
+  <div class="flex items-end justify-between">
+    <div>
+      <p class="text-xs text-muted uppercase tracking-widest mb-1">{% now "l, d F Y" %}</p>
+      <h1 class="text-3xl font-normal text-ink">Halo, {{ request.user.username }}!</h1>
+    </div>
+    {% if today_total and tdee %}
+    <div class="hidden md:block text-right">
+      <p class="text-xs text-muted mb-0.5">Energi hari ini</p>
+      <p class="text-2xl font-semibold text-ink">{{ today_total.energy_kcal|indo_number:0 }} <span class="text-sm font-normal text-muted">kkal</span></p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Peringatan profil belum lengkap -->
+  {% if not has_imt %}
+  <div class="flex items-start gap-4 px-5 py-4 bg-[#fffbeb] border-l-[3px] border-[#d97706] rounded-r-xl text-sm">
+    <svg class="w-5 h-5 text-[#d97706] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 3a9 9 0 110 18A9 9 0 0112 3z"/>
+    </svg>
+    <div>
+      <p class="font-medium text-[#92400e]">Profil belum lengkap</p>
+      <p class="text-[#92400e]/80 mt-0.5">
+        Tambahkan <a href="{% url 'imt-add' %}" class="underline underline-offset-2 font-medium">berat dan tinggi badan</a>
+        untuk mengaktifkan kalkulasi gizi personal.
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Grid utama: IMT + aksi cepat | Ringkasan gizi -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <!-- Kolom kiri: IMT + aksi cepat -->
+    <div class="space-y-4">
+      {% include 'components/imt_card.html' %}
+
+      <!-- Aksi cepat -->
+      <div class="bg-white border border-hairline rounded-2xl p-5 shadow-sm">
+        <p class="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Aksi Cepat</p>
+        <div class="space-y-0.5">
+          <a href="{% url 'daily-log' %}"
+             class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-soft transition-colors group">
+            <span class="w-7 h-7 rounded-lg bg-sig-teal/10 flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5 text-sig-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            </span>
+            <span class="text-sm text-body group-hover:text-ink flex-1 transition-colors">Catat Makanan</span>
+            <svg class="w-3.5 h-3.5 text-muted group-hover:text-ink transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="{% url 'food-recall' %}"
+             class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-soft transition-colors group">
+            <span class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </span>
+            <span class="text-sm text-body group-hover:text-ink flex-1 transition-colors">Food Recall Kemarin</span>
+            <svg class="w-3.5 h-3.5 text-muted group-hover:text-ink transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="{% url 'weekly-report' %}"
+             class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-soft transition-colors group">
+            <span class="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+            </span>
+            <span class="text-sm text-body group-hover:text-ink flex-1 transition-colors">Laporan Mingguan</span>
+            <svg class="w-3.5 h-3.5 text-muted group-hover:text-ink transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kolom kanan: status energi + ringkasan gizi -->
+    <div class="md:col-span-2 space-y-5">
+
+      <!-- Status energi hari ini -->
+      {% if energy_status %}
+      <div class="rounded-2xl p-6 shadow-sm
+        {% if energy_status == 'Cukup' %}bg-sig-teal text-white
+        {% elif energy_status == 'Lebih' %}bg-sig-coral text-white
+        {% else %}bg-white border border-hairline{% endif %}">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider opacity-60 mb-1">Status Energi Hari Ini</p>
+            <p class="text-3xl font-normal
+              {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white{% else %}text-ink{% endif %}">
+              {{ energy_status }}
+            </p>
+            {% if today_total %}
+            <p class="text-sm mt-1.5
+              {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white/65{% else %}text-muted{% endif %}">
+              {{ today_total.energy_kcal|indo_number:0 }} kkal dari {{ tdee|indo_number:0 }} kkal target
+            </p>
+            {% endif %}
+          </div>
+          <div class="text-4xl opacity-20 select-none">
+            {% if energy_status == 'Cukup' %}✓{% elif energy_status == 'Lebih' %}⚠{% else %}○{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% include 'components/nutrition_summary.html' %}
+
+      <!-- Panduan porsi -->
+      <div class="bg-sig-cream rounded-2xl p-5">
+        <p class="text-xs font-semibold text-ink uppercase tracking-wider mb-3">Panduan Estimasi Porsi</p>
+        <div class="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-muted">
+          <p>🍚 1 centong nasi ≈ 100 g</p>
+          <p>🍗 1 potong ayam ≈ 80 g</p>
+          <p>🥚 1 butir telur ≈ 55 g</p>
+          <p>🫙 1 sdm minyak ≈ 10 g</p>
+          <p>🥬 1 mangkuk sayur ≈ 150 g</p>
+          <p>🍌 1 buah pisang ≈ 80 g</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Grafik tren 7 hari -->
+  <div class="bg-white border border-hairline rounded-2xl p-8 shadow-sm">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-lg font-medium text-ink">Tren Asupan 7 Hari Terakhir</h2>
+        <p class="text-xs text-muted mt-0.5">Energi harian (kkal) vs target TDEE</p>
+      </div>
+      <a href="{% url 'weekly-report' %}" class="text-xs text-muted hover:text-ink underline underline-offset-2 transition-colors">
+        Lihat laporan lengkap
+      </a>
+    </div>
+    {% if chart_data.has_nonzero %}
+    <div style="position:relative; height:220px;">
+      <canvas id="trendChart"></canvas>
+    </div>
+    <script>
+    (function () {
+      var labels     = {{ chart_data.labels_json|safe }};
+      var energyData = {{ chart_data.energy_json|safe }};
+      var tdee       = {{ tdee|default:0 }};
+
+      function draw() {
+        if (typeof Chart === 'undefined') { return setTimeout(draw, 30); }
+        var ctx = document.getElementById('trendChart');
+        if (!ctx) return;
+        var colors = { primary: '#181d26', fade: 'rgba(10,61,58,0.10)', coral: '#aa2d00', grid: '#e0e2e6', muted: '#41454d' };
+        var datasets = [{
+          label: 'Energi (kkal)',
+          data: energyData,
+          borderColor: '#0a3d3a',
+          backgroundColor: colors.fade,
+          borderWidth: 2,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#0a3d3a',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+        }];
+        if (tdee > 0) {
+          datasets.push({
+            label: 'Target TDEE',
+            data: labels.map(function () { return tdee; }),
+            borderColor: colors.coral,
+            borderWidth: 1.5,
+            borderDash: [6, 3],
+            pointRadius: 0,
+            fill: false,
+            tension: 0,
+          });
+        }
+        new Chart(ctx, {
+          type: 'line',
+          data: { labels: labels, datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: { mode: 'index', intersect: false },
+            },
+            scales: {
+              x: { grid: { display: false }, border: { display: false } },
+              y: { beginAtZero: true, grid: { color: colors.grid }, border: { display: false } },
+            }
+          }
+        });
+      }
+      draw();
+    })();
+    </script>
+    {% else %}
+    <div class="flex items-center justify-center h-[160px] text-muted text-sm">
+      Belum ada data asupan minggu ini.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

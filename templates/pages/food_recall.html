@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load nutriqu_filters %}
+{% block title %}Food Recall{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+
+  <div class="mb-8">
+    <h1 class="text-4xl font-normal text-ink mb-1.5">Food Recall</h1>
+    <p class="text-sm text-muted">
+      Rekap asupan kemarin ({{ yesterday|date:"d F Y" }}).
+      Salin ke hari ini dengan satu klik.
+    </p>
+  </div>
+
+  {% if not yesterday_log or not entries %}
+  <div class="bg-surface-soft border border-hairline rounded-xl p-12 text-center">
+    <p class="text-sm text-muted mb-4">Tidak ada data asupan untuk kemarin.</p>
+    <a href="{% url 'daily-log' %}"
+       class="inline-block h-10 px-6 bg-primary text-white text-sm font-medium rounded-xl
+              transition-colors active:bg-primary-active leading-10">
+      Kembali ke log hari ini
+    </a>
+  </div>
+
+  {% else %}
+
+  <!-- Tombol salin -->
+  <form method="post" class="mb-6">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="copy">
+    <button type="submit"
+      class="h-11 px-7 bg-primary text-white text-sm font-medium rounded-xl
+             transition-colors active:bg-primary-active">
+      Salin Semua ke Hari Ini
+    </button>
+  </form>
+
+  <!-- Daftar entri kemarin -->
+  <div class="bg-white border border-hairline rounded-xl overflow-hidden mb-6">
+    {% regroup entries by get_meal_type_display as meal_groups %}
+    {% for meal_group in meal_groups %}
+    <div class="border-b border-hairline last:border-b-0">
+      <div class="px-6 py-3 bg-surface-soft border-b border-hairline">
+        <h3 class="text-sm font-semibold text-ink">{{ meal_group.grouper }}</h3>
+      </div>
+      {% for entry in meal_group.list %}
+      <div class="px-6 py-3.5 flex items-center justify-between border-b border-hairline last:border-b-0">
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-ink">{{ entry.display_name }}</p>
+          <p class="text-xs text-muted mt-0.5">{{ entry.amount_g|indo_number:0 }} gram</p>
+        </div>
+        {% if entry.food %}
+        <p class="text-xs text-muted shrink-0 ml-4">
+          {{ entry.food.nutritionfact.energy_kcal|indo_number:0 }} kkal/100g
+        </p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Total kemarin -->
+  {% if total %}
+  <div class="bg-cream rounded-xl p-5">
+    <p class="text-xs font-semibold text-ink uppercase tracking-wider mb-4">Total Kemarin</p>
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div>
+        <p class="text-muted text-xs mb-0.5">Energi</p>
+        <p class="text-xl font-normal text-ink">{{ total.energy_kcal|indo_number:0 }} <span class="text-sm font-normal text-muted">kkal</span></p>
+      </div>
+      <div>
+        <p class="text-muted text-xs mb-0.5">Protein</p>
+        <p class="text-xl font-normal text-ink">{{ total.protein_g|indo_number }} <span class="text-sm font-normal text-muted">g</span></p>
+      </div>
+      <div>
+        <p class="text-muted text-xs mb-0.5">Lemak</p>
+        <p class="text-xl font-normal text-ink">{{ total.fat_g|indo_number }} <span class="text-sm font-normal text-muted">g</span></p>
+      </div>
+      <div>
+        <p class="text-muted text-xs mb-0.5">Karbohidrat</p>
+        <p class="text-xl font-normal text-ink">{{ total.carbohydrate_g|indo_number }} <span class="text-sm font-normal text-muted">g</span></p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% endif %}
+</div>
+{% endblock %}

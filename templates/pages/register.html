@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Daftar Akun{% endblock %}
+
+{% block main_class %}min-h-screen flex items-center justify-center px-4 py-12{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-4xl">
+  <div class="grid grid-cols-1 md:grid-cols-2 rounded-2xl overflow-hidden shadow-xl border border-hairline">
+
+    <!-- Panel kiri: signature coral -->
+    <div class="hidden md:flex flex-col justify-between bg-coral p-10 text-white">
+      <div>
+        <p class="text-xl font-semibold tracking-tight">Nutriqu</p>
+        <p class="text-white/60 text-sm mt-1">Mulai perjalanan gizimu hari ini.</p>
+      </div>
+
+      <div class="space-y-5">
+        <h2 class="text-2xl font-normal text-white leading-snug">
+          Kenali tubuhmu,<br>kelola gizimu.
+        </h2>
+        <ul class="space-y-2.5 text-sm text-white/70">
+          <li class="flex items-center gap-2.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/50 shrink-0"></span>
+            Catat asupan dari 937+ makanan Indonesia
+          </li>
+          <li class="flex items-center gap-2.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/50 shrink-0"></span>
+            Kalkulasi otomatis kalori & makronutrien
+          </li>
+          <li class="flex items-center gap-2.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/50 shrink-0"></span>
+            Target AKG personal sesuai data tubuhmu
+          </li>
+          <li class="flex items-center gap-2.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/50 shrink-0"></span>
+            Laporan mingguan & food recall
+          </li>
+        </ul>
+      </div>
+
+      <p class="text-xs text-white/30">Berbasis AKG Permenkes No.28/2019</p>
+    </div>
+
+    <!-- Panel kanan: form -->
+    <div class="bg-white p-8 md:p-10">
+      <!-- Brand (mobile only) -->
+      <div class="md:hidden text-center mb-8">
+        <p class="text-2xl font-semibold text-ink">Nutriqu</p>
+        <p class="text-sm text-muted mt-1">Mulai perjalanan gizimu hari ini.</p>
+      </div>
+
+      <h1 class="text-2xl font-normal text-ink mb-1">Buat akun baru</h1>
+      <p class="text-sm text-muted mb-7">Gratis, tanpa iklan, data pribadimu aman.</p>
+
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+
+        <div>
+          <label class="block text-sm font-medium text-ink mb-1.5">Username</label>
+          <input type="text" name="username" value="{{ data.username|default:'' }}" required autofocus
+            class="w-full h-11 px-4 border rounded-md text-sm text-ink
+                   focus:outline-none focus:border-info-border focus:ring-1 focus:ring-info-border
+                   {% if errors.username %}border-red-400{% else %}border-hairline{% endif %}">
+          {% if errors.username %}<p class="text-xs text-red-600 mt-1">{{ errors.username }}</p>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-ink mb-1.5">Email</label>
+          <input type="email" name="email" value="{{ data.email|default:'' }}" required
+            class="w-full h-11 px-4 border rounded-md text-sm text-ink
+                   focus:outline-none focus:border-info-border focus:ring-1 focus:ring-info-border
+                   {% if errors.email %}border-red-400{% else %}border-hairline{% endif %}">
+          {% if errors.email %}<p class="text-xs text-red-600 mt-1">{{ errors.email }}</p>{% endif %}
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-ink mb-1.5">Password</label>
+            <input type="password" name="password1" required
+              class="w-full h-11 px-4 border rounded-md text-sm text-ink
+                     focus:outline-none focus:border-info-border focus:ring-1 focus:ring-info-border
+                     {% if errors.password1 %}border-red-400{% else %}border-hairline{% endif %}">
+            {% if errors.password1 %}<p class="text-xs text-red-600 mt-1">{{ errors.password1 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-ink mb-1.5">Konfirmasi</label>
+            <input type="password" name="password2" required
+              class="w-full h-11 px-4 border rounded-md text-sm text-ink
+                     focus:outline-none focus:border-info-border focus:ring-1 focus:ring-info-border
+                     {% if errors.password2 %}border-red-400{% else %}border-hairline{% endif %}">
+            {% if errors.password2 %}<p class="text-xs text-red-600 mt-1">{{ errors.password2 }}</p>{% endif %}
+          </div>
+        </div>
+
+        <button type="submit"
+          class="w-full h-11 bg-primary text-white text-sm font-medium rounded-xl
+                 transition-colors active:bg-primary-active mt-2">
+          Buat Akun
+        </button>
+      </form>
+
+      <p class="mt-6 text-center text-sm text-muted">
+        Sudah punya akun?
+        <a href="{% url 'login' %}" class="text-ink font-medium underline underline-offset-2">Masuk</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
