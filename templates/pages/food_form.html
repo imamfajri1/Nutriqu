@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}{% if action == 'edit' %}Edit Makanan{% else %}Tambah Makanan{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-5">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <a href="{% url 'food-manage' %}" class="p-2 rounded-xl text-muted hover:bg-white hover:text-ink transition-colors border border-hairline">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </a>
+    <div>
+      <h1 class="text-xl font-semibold text-ink">
+        {% if action == 'edit' %}Edit: {{ food.name }}{% else %}Tambah Makanan Baru{% endif %}
+      </h1>
+      <p class="text-sm text-muted mt-0.5">Nilai gizi per 100g BDD (Bagian Dapat Dimakan) · TKPI 2020</p>
+    </div>
+  </div>
+
+  <form method="post" class="space-y-5">
+    {% csrf_token %}
+
+    <!-- ── IDENTITAS ── -->
+    <div class="bg-white rounded-2xl border border-hairline shadow-sm p-6">
+      <h2 class="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-[#f0fdf4] flex items-center justify-center text-[#1b4332] text-xs font-bold">1</span>
+        Identitas Makanan
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <div>
+          <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Kode <span class="text-red-500">*</span></label>
+          <input type="text" name="code" required maxlength="10"
+                 value="{{ v.code }}"
+                 placeholder="mis. AR001"
+                 class="w-full h-10 px-3 border rounded-xl text-sm font-mono focus:outline-none focus:border-[#1b4332] focus:ring-1 focus:ring-[#1b4332] {% if errors.code %}border-red-400 bg-red-50{% else %}border-hairline{% endif %}">
+          {% if errors.code %}<p class="text-xs text-red-600 mt-1">{{ errors.code }}</p>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Sumber Data</label>
+          <input type="text" name="source"
+                 value="{{ v.source }}"
+                 placeholder="mis. TKPI-2020"
+                 class="w-full h-10 px-3 border border-hairline rounded-xl text-sm focus:outline-none focus:border-[#1b4332] focus:ring-1 focus:ring-[#1b4332]">
+        </div>
+
+        <div class="sm:col-span-2">
+          <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Nama Makanan <span class="text-red-500">*</span></label>
+          <input type="text" name="name" required maxlength="200"
+                 value="{{ v.name }}"
+                 placeholder="mis. Beras giling, mentah"
+                 class="w-full h-10 px-3 border rounded-xl text-sm focus:outline-none focus:border-[#1b4332] focus:ring-1 focus:ring-[#1b4332] {% if errors.name %}border-red-400 bg-red-50{% else %}border-hairline{% endif %}">
+          {% if errors.name %}<p class="text-xs text-red-600 mt-1">{{ errors.name }}</p>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">BDD — Bagian Dapat Dimakan (%)</label>
+          <input type="number" name="bdd_pct" min="0" max="100" step="0.1"
+                 value="{{ v.bdd_pct }}"
+                 placeholder="100"
+                 class="w-full h-10 px-3 border border-hairline rounded-xl text-sm focus:outline-none focus:border-[#1b4332] focus:ring-1 focus:ring-[#1b4332]">
+          <p class="text-xs text-muted mt-1">Persentase bagian yang bisa dimakan. Default 100%.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PROKSIMAT ── -->
+    <div class="bg-white rounded-2xl border border-hairline shadow-sm p-6">
+      <h2 class="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-amber-50 flex items-center justify-center text-amber-700 text-xs font-bold">2</span>
+        Proksimat <span class="text-xs font-normal text-muted ml-1">per 100g BDD</span>
+      </h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+        {% include 'components/_nf_input.html' with field='energy_kcal' label='Energi' unit='kkal' val=v.energy_kcal %}
+        {% include 'components/_nf_input.html' with field='water_g' label='Air' unit='g' val=v.water_g %}
+        {% include 'components/_nf_input.html' with field='protein_g' label='Protein' unit='g' val=v.protein_g %}
+        {% include 'components/_nf_input.html' with field='fat_g' label='Lemak' unit='g' val=v.fat_g %}
+        {% include 'components/_nf_input.html' with field='carbohydrate_g' label='Karbohidrat' unit='g' val=v.carbohydrate_g %}
+        {% include 'components/_nf_input.html' with field='fiber_g' label='Serat' unit='g' val=v.fiber_g %}
+
+      </div>
+    </div>
+
+    <!-- ── MINERAL ── -->
+    <div class="bg-white rounded-2xl border border-hairline shadow-sm p-6">
+      <h2 class="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-blue-50 flex items-center justify-center text-blue-600 text-xs font-bold">3</span>
+        Mineral <span class="text-xs font-normal text-muted ml-1">per 100g BDD</span>
+      </h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+        {% include 'components/_nf_input.html' with field='calcium_mg' label='Kalsium' unit='mg' val=v.calcium_mg %}
+        {% include 'components/_nf_input.html' with field='phosphorus_mg' label='Fosfor' unit='mg' val=v.phosphorus_mg %}
+        {% include 'components/_nf_input.html' with field='iron_mg' label='Besi (Fe)' unit='mg' val=v.iron_mg %}
+        {% include 'components/_nf_input.html' with field='sodium_mg' label='Natrium' unit='mg' val=v.sodium_mg %}
+        {% include 'components/_nf_input.html' with field='potassium_mg' label='Kalium' unit='mg' val=v.potassium_mg %}
+        {% include 'components/_nf_input.html' with field='copper_mg' label='Tembaga' unit='mg' val=v.copper_mg %}
+        {% include 'components/_nf_input.html' with field='zinc_mg' label='Seng (Zn)' unit='mg' val=v.zinc_mg %}
+        {% include 'components/_nf_input.html' with field='magnesium_mg' label='Magnesium' unit='mg' val=v.magnesium_mg %}
+
+      </div>
+    </div>
+
+    <!-- ── VITAMIN ── -->
+    <div class="bg-white rounded-2xl border border-hairline shadow-sm p-6">
+      <h2 class="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+        <span class="w-5 h-5 rounded-md bg-violet-50 flex items-center justify-center text-violet-600 text-xs font-bold">4</span>
+        Vitamin <span class="text-xs font-normal text-muted ml-1">per 100g BDD</span>
+      </h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+        {% include 'components/_nf_input.html' with field='retinol_mcg' label='Retinol (Vit A)' unit='mcg' val=v.retinol_mcg %}
+        {% include 'components/_nf_input.html' with field='beta_carotene_mcg' label='Beta-Karoten' unit='mcg' val=v.beta_carotene_mcg %}
+        {% include 'components/_nf_input.html' with field='thiamin_mg' label='Tiamin (B1)' unit='mg' val=v.thiamin_mg %}
+        {% include 'components/_nf_input.html' with field='riboflavin_mg' label='Riboflavin (B2)' unit='mg' val=v.riboflavin_mg %}
+        {% include 'components/_nf_input.html' with field='niacin_mg' label='Niasin (B3)' unit='mg' val=v.niacin_mg %}
+        {% include 'components/_nf_input.html' with field='vitamin_c_mg' label='Vitamin C' unit='mg' val=v.vitamin_c_mg %}
+
+      </div>
+    </div>
+
+    <!-- Tombol submit -->
+    <div class="flex items-center gap-3 pb-4">
+      <button type="submit"
+              class="flex-1 sm:flex-none px-8 py-3 bg-[#1b4332] text-white text-sm font-semibold rounded-xl hover:bg-[#2d6a4f] active:bg-[#1a3829] transition-colors shadow-sm">
+        {% if action == 'edit' %}Simpan Perubahan{% else %}Tambah Makanan{% endif %}
+      </button>
+      <a href="{% url 'food-manage' %}"
+         class="px-6 py-3 border border-hairline text-sm text-body rounded-xl hover:bg-surface-soft transition-colors">
+        Batal
+      </a>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}

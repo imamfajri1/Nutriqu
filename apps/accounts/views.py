@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils import timezone
 
-from .models import UserProfile, IMTRecord, ACTIVITY_CHOICES
+from .models import UserProfile, IMTRecord, ACTIVITY_CHOICES, ROLE_CHOICES
 from .utils import calculate_imt, get_imt_category, calculate_bmr, calculate_tdee
 
 
@@ -34,15 +34,21 @@ def register_view(request):
         if password1 != password2:
             errors['password2'] = 'Password tidak sama.'
 
+        role = request.POST.get('role', 'user')
+        if role not in dict(ROLE_CHOICES):
+            role = 'user'
+
         if not errors:
             user = User.objects.create_user(username=username, email=email, password=password1)
+            user.profile.role = role
+            user.profile.save()
             login(request, user)
             messages.success(request, 'Akun berhasil dibuat! Lengkapi profil kamu dulu ya.')
             return redirect('profile')
 
-        return render(request, 'pages/register.html', {'errors': errors, 'data': request.POST})
+        return render(request, 'pages/register.html', {'errors': errors, 'data': request.POST, 'role_choices': ROLE_CHOICES})
 
-    return render(request, 'pages/register.html')
+    return render(request, 'pages/register.html', {'role_choices': ROLE_CHOICES})
 
 
 def login_view(request):

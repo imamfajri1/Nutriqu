@@ -73,6 +73,41 @@
           {% if errors.email %}<p class="text-xs text-red-600 mt-1">{{ errors.email }}</p>{% endif %}
         </div>
 
+        <!-- Role -->
+        <div>
+          <label class="block text-sm font-medium text-ink mb-2">Daftar sebagai</label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="relative cursor-pointer">
+              <input type="radio" name="role" value="user" class="sr-only peer"
+                {% if data.role == 'ahli_gizi' %}{% else %}checked{% endif %}>
+              <div class="flex items-center gap-3 p-3 rounded-xl border-2 transition-all
+                          border-hairline peer-checked:border-[#1b4332] peer-checked:bg-[#f0fdf4]">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-ink">Pengguna Biasa</p>
+                  <p class="text-xs text-muted leading-tight">Catat & pantau gizi pribadi</p>
+                </div>
+              </div>
+            </label>
+            <label class="relative cursor-pointer">
+              <input type="radio" name="role" value="ahli_gizi" class="sr-only peer"
+                {% if data.role == 'ahli_gizi' %}checked{% endif %}>
+              <div class="flex items-center gap-3 p-3 rounded-xl border-2 transition-all
+                          border-hairline peer-checked:border-emerald-600 peer-checked:bg-emerald-50">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-ink">Ahli Gizi</p>
+                  <p class="text-xs text-muted leading-tight">Kelola database makanan</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-sm font-medium text-ink mb-1.5">Password</label>

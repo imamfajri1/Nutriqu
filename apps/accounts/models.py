@@ -14,9 +14,15 @@ ACTIVITY_CHOICES = [
     ('very_active', 'Sangat Aktif (atlet / kerja fisik berat)'),
 ]
 
+ROLE_CHOICES = [
+    ('user', 'Pengguna Biasa'),
+    ('ahli_gizi', 'Ahli Gizi'),
+]
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user', verbose_name='Role')
     birth_date = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, choices=[('M', 'Pria'), ('F', 'Wanita')], default='M')
     activity_level = models.CharField(max_length=20, choices=ACTIVITY_CHOICES, default='sedentary')
@@ -27,6 +33,10 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"Profil {self.user.username}"
+
+    @property
+    def is_ahli_gizi(self):
+        return self.role == 'ahli_gizi'
 
     @property
     def is_complete(self):
