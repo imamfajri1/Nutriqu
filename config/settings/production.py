@@ -29,8 +29,11 @@ DATABASES = {
         'PORT': config('DB_PORT', default='5432'),
         'OPTIONS': {
             'sslmode': 'require',
+            # Wajib untuk Supabase Transaction Pooler (PgBouncer)
+            'options': '-c statement_timeout=30000',
         },
-        'CONN_MAX_AGE': 60,
+        # Harus 0 untuk Transaction Pooler — koneksi tidak boleh di-persist
+        'CONN_MAX_AGE': 0,
     }
 }
 
