@@ -12,16 +12,26 @@ function initFoodPanel() {
 
     get estimatedKcal() {
       if (!this.food) return 0;
-      return Math.round(this.food.kcal * this.amountG / 100);
+      var bdd = this.food.bdd || 100;
+      return Math.round(this.food.kcal * (this.amountG / 100) * (bdd / 100));
     },
 
-    selectFood(id, name, kcal, protein, fat, carbo) {
+    selectFood(data) {
+      var n = function(v) { var x = parseFloat(v); return isNaN(x) ? 0 : x; };
       this.food = {
-        id, name,
-        kcal:    parseFloat(kcal)    || 0,
-        protein: parseFloat(protein) || 0,
-        fat:     parseFloat(fat)     || 0,
-        carbo:   parseFloat(carbo)   || 0,
+        id:        data.id,
+        name:      data.name,
+        bdd:       n(data.bdd),
+        kcal:      n(data.kcal),
+        protein:   n(data.protein),
+        fat:       n(data.fat),
+        carbo:     n(data.carbo),
+        fiber:     n(data.fiber),
+        calcium:   n(data.calcium),
+        iron:      n(data.iron),
+        sodium:    n(data.sodium),
+        potassium: n(data.potassium),
+        vitc:      n(data.vitc),
       };
       document.getElementById('search-results').innerHTML = '';
       document.getElementById('food-search-input').value = '';
@@ -39,13 +49,13 @@ function initFoodPanel() {
   };
 }
 
-function selectFood(id, name, kcal, protein, fat, carbo) {
-  const el = document.getElementById('food-panel');
-  if (el && el._x_dataStack) el._x_dataStack[0].selectFood(id, name, kcal, protein, fat, carbo);
+function selectFoodEl(el) {
+  var fp = document.getElementById('food-panel');
+  if (fp && fp._x_dataStack) fp._x_dataStack[0].selectFood(el.dataset);
 }
 
 function onFoodAddSuccess() {
-  const el = document.getElementById('food-panel');
+  var el = document.getElementById('food-panel');
   if (el && el._x_dataStack) el._x_dataStack[0].onAddSuccess();
 }
 </script>
@@ -184,16 +194,49 @@ function onFoodAddSuccess() {
                 <p class="text-[10px] text-muted mt-0.5">kkal</p>
               </div>
               <div class="text-center bg-blue-50 rounded-xl p-3">
-                <p class="text-base font-bold text-blue-700" x-text="food ? food.protein.toFixed(1) : 0"></p>
+                <p class="text-base font-bold text-blue-700" x-text="food ? food.protein.toFixed(1) : '—'"></p>
                 <p class="text-[10px] text-muted mt-0.5">Protein</p>
               </div>
               <div class="text-center bg-amber-50 rounded-xl p-3">
-                <p class="text-base font-bold text-amber-700" x-text="food ? food.fat.toFixed(1) : 0"></p>
+                <p class="text-base font-bold text-amber-700" x-text="food ? food.fat.toFixed(1) : '—'"></p>
                 <p class="text-[10px] text-muted mt-0.5">Lemak</p>
               </div>
               <div class="text-center bg-emerald-50 rounded-xl p-3">
-                <p class="text-base font-bold text-emerald-700" x-text="food ? food.carbo.toFixed(1) : 0"></p>
+                <p class="text-base font-bold text-emerald-700" x-text="food ? food.carbo.toFixed(1) : '—'"></p>
                 <p class="text-[10px] text-muted mt-0.5">Karbo</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Micronutrients (per 100g) -->
+          <div class="rounded-xl border border-hairline overflow-hidden">
+            <div class="bg-surface-soft px-3 py-1.5 border-b border-hairline">
+              <p class="text-[10px] font-semibold text-muted uppercase tracking-wider">Mikronutrien per 100g</p>
+            </div>
+            <div class="grid grid-cols-3">
+              <div class="px-3 py-2 text-center border-r border-b border-hairline">
+                <p class="text-xs font-semibold text-violet-700" x-text="food ? food.fiber.toFixed(1) + ' g' : '—'"></p>
+                <p class="text-[10px] text-muted">Serat</p>
+              </div>
+              <div class="px-3 py-2 text-center border-r border-b border-hairline">
+                <p class="text-xs font-semibold text-sky-700" x-text="food ? food.calcium.toFixed(0) + ' mg' : '—'"></p>
+                <p class="text-[10px] text-muted">Kalsium</p>
+              </div>
+              <div class="px-3 py-2 text-center border-b border-hairline">
+                <p class="text-xs font-semibold text-rose-700" x-text="food ? food.iron.toFixed(1) + ' mg' : '—'"></p>
+                <p class="text-[10px] text-muted">Zat Besi</p>
+              </div>
+              <div class="px-3 py-2 text-center border-r border-hairline">
+                <p class="text-xs font-semibold text-orange-700" x-text="food ? food.sodium.toFixed(0) + ' mg' : '—'"></p>
+                <p class="text-[10px] text-muted">Natrium</p>
+              </div>
+              <div class="px-3 py-2 text-center border-r border-hairline">
+                <p class="text-xs font-semibold text-teal-700" x-text="food ? food.potassium.toFixed(0) + ' mg' : '—'"></p>
+                <p class="text-[10px] text-muted">Kalium</p>
+              </div>
+              <div class="px-3 py-2 text-center">
+                <p class="text-xs font-semibold text-yellow-600" x-text="food ? food.vitc.toFixed(0) + ' mg' : '—'"></p>
+                <p class="text-[10px] text-muted">Vit C</p>
               </div>
             </div>
           </div>

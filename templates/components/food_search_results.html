@@ -9,14 +9,20 @@
   {% for food in foods %}
   <li class="px-4 py-3 cursor-pointer hover:bg-surface-soft transition-colors group"
       role="option"
-      onclick="selectFood(
-        {{ food.pk }},
-        '{{ food.name|escapejs }}',
-        {{ food.nutritionfact.energy_kcal|default:0 }},
-        {{ food.nutritionfact.protein_g|default:0 }},
-        {{ food.nutritionfact.fat_g|default:0 }},
-        {{ food.nutritionfact.carbohydrate_g|default:0 }}
-      )">
+      data-id="{{ food.pk }}"
+      data-name="{{ food.name|escapejs }}"
+      data-bdd="{{ food.bdd_pct|default:100|stringformat:'g' }}"
+      data-kcal="{{ food.nutritionfact.energy_kcal|default:0|stringformat:'g' }}"
+      data-protein="{{ food.nutritionfact.protein_g|default:0|stringformat:'g' }}"
+      data-fat="{{ food.nutritionfact.fat_g|default:0|stringformat:'g' }}"
+      data-carbo="{{ food.nutritionfact.carbohydrate_g|default:0|stringformat:'g' }}"
+      data-fiber="{{ food.nutritionfact.fiber_g|default:0|stringformat:'g' }}"
+      data-calcium="{{ food.nutritionfact.calcium_mg|default:0|stringformat:'g' }}"
+      data-iron="{{ food.nutritionfact.iron_mg|default:0|stringformat:'g' }}"
+      data-sodium="{{ food.nutritionfact.sodium_mg|default:0|stringformat:'g' }}"
+      data-potassium="{{ food.nutritionfact.potassium_mg|default:0|stringformat:'g' }}"
+      data-vitc="{{ food.nutritionfact.vitamin_c_mg|default:0|stringformat:'g' }}"
+      onclick="selectFoodEl(this)">
     <div class="flex justify-between items-center gap-3">
       <div class="min-w-0 flex items-center gap-2.5">
         <span class="w-6 h-6 rounded-full bg-sig-teal/10 flex items-center justify-center shrink-0 text-[10px]">🥦</span>

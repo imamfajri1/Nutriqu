@@ -107,4 +107,60 @@
     }
   });
 
+  /* ─────────────────────────────────────────────────────────────
+   * 9. Confirm modal — pure JS, tidak bergantung window.Alpine
+   * ───────────────────────────────────────────────────────────── */
+  var _confirmCallback = null;
+
+  function openConfirmModal(message, callback) {
+    var modal = document.getElementById('confirm-modal');
+    var msgEl = document.getElementById('confirm-modal-message');
+    if (!modal) { if (callback) callback(); return; }
+    if (msgEl) msgEl.textContent = message;
+    _confirmCallback = callback;
+    modal.style.display = 'flex';
+  }
+
+  function closeConfirmModal() {
+    var modal = document.getElementById('confirm-modal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var okBtn     = document.getElementById('confirm-ok-btn');
+    var cancelBtn = document.getElementById('confirm-cancel-btn');
+    var backdrop  = document.getElementById('confirm-backdrop');
+
+    if (okBtn) {
+      okBtn.addEventListener('click', function () {
+        closeConfirmModal();
+        if (_confirmCallback) { var cb = _confirmCallback; _confirmCallback = null; cb(); }
+      });
+    }
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', function () {
+        closeConfirmModal();
+        _confirmCallback = null;
+      });
+    }
+    if (backdrop) {
+      backdrop.addEventListener('click', function () {
+        closeConfirmModal();
+        _confirmCallback = null;
+      });
+    }
+  });
+
+  /* Override htmx.confirm agar pakai modal kustom, bukan browser dialog.
+     htmx:confirm fire untuk SEMUA request di HTMX 2.x — hanya proses
+     jika elemen memang punya hx-confirm (e.detail.question tidak kosong). */
+  document.addEventListener('htmx:confirm', function (e) {
+    if (!e.detail.question) return;
+    e.preventDefault();
+    var issueRequest = e.detail.issueRequest;
+    openConfirmModal(e.detail.question, function () {
+      issueRequest(true);
+    });
+  });
+
 })();

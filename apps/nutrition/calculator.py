@@ -8,27 +8,37 @@ from apps.accounts.utils import get_user_age
 def get_akg_targets(user_profile, tdee: float) -> dict:
     """
     Hitung target gizi harian berdasarkan TDEE dan profil pengguna.
-    Distribusi makro mengikuti AKG Indonesia:
-      - Protein      : 10-15% energi → gram = (tdee × 0.13) / 4
-      - Lemak        : 20-30% energi → gram = (tdee × 0.25) / 9
-      - Karbohidrat  : 50-65% energi → gram = (tdee × 0.575) / 4
-      - Serat        : 25-30g/hari (dewasa)
+    Distribusi makro mengikuti AKG Indonesia (Permenkes 28/2019):
+      - Protein      : 10-15% energi → (tdee × 0.13) / 4
+      - Lemak        : 20-30% energi → (tdee × 0.25) / 9
+      - Karbohidrat  : 50-65% energi → (tdee × 0.575) / 4
+    Mikronutrien menggunakan nilai flat AKG dewasa (19-29 tahun).
     """
-    protein_g = (tdee * 0.13) / 4
-    fat_g = (tdee * 0.25) / 9
-    carbohydrate_g = (tdee * 0.575) / 4
-    fiber_g = _get_fiber_target(user_profile)
+    gender_m = user_profile.gender == 'M'
 
     return {
-        'energy_kcal': tdee,
-        'protein_g': protein_g,
-        'fat_g': fat_g,
-        'carbohydrate_g': carbohydrate_g,
-        'fiber_g': fiber_g,
-        # Mineral — nilai flat berdasarkan AKG dewasa umum
-        'calcium_mg': 1000.0,
-        'iron_mg': 11.0 if user_profile.gender == 'M' else 26.0,
-        'zinc_mg': 11.0 if user_profile.gender == 'M' else 8.0,
+        # Makronutrien berbasis TDEE
+        'energy_kcal':    tdee,
+        'protein_g':      (tdee * 0.13) / 4,
+        'fat_g':          (tdee * 0.25) / 9,
+        'carbohydrate_g': (tdee * 0.575) / 4,
+        'fiber_g':        _get_fiber_target(user_profile),
+
+        # Mineral (AKG 2019)
+        'calcium_mg':     1000.0,
+        'phosphorus_mg':  700.0,
+        'iron_mg':        11.0 if gender_m else 26.0,
+        'sodium_mg':      1500.0,
+        'potassium_mg':   4700.0,
+        'copper_mg':      0.9,
+        'zinc_mg':        11.0 if gender_m else 8.0,
+
+        # Vitamin (AKG 2019)
+        'retinol_mcg':    650.0 if gender_m else 600.0,
+        'thiamin_mg':     1.2 if gender_m else 1.1,
+        'riboflavin_mg':  1.3 if gender_m else 1.1,
+        'niacin_mg':      16.0 if gender_m else 14.0,
+        'vitamin_c_mg':   90.0 if gender_m else 75.0,
     }
 
 
@@ -56,7 +66,7 @@ def calculate_progress(current: dict, target: dict) -> dict:
     for key, target_val in target.items():
         current_val = current.get(key, 0)
         if target_val and target_val > 0:
-            pct = min((current_val / target_val) * 100, 150)  # cap di 150%
+            pct = min((current_val / target_val) * 100, 150)
         else:
             pct = 0
         result[key] = current_val
