@@ -2,58 +2,161 @@
 {% load nutriqu_filters %}
 {% block title %}Dashboard{% endblock %}
 
-{% block extra_head %}{% endblock %}
-
-{% block main_class %}max-w-6xl mx-auto px-6 py-8{% endblock %}
+{% block main_class %}p-0{% endblock %}
 
 {% block content %}
-<div class="space-y-8">
 
-  <!-- Header -->
-  <div class="flex items-end justify-between">
-    <div>
-      <p class="text-xs text-muted uppercase tracking-widest mb-1">{% now "l, d F Y" %}</p>
-      <h1 class="text-3xl font-normal text-ink">Halo, {{ request.user.username }}!</h1>
-    </div>
-    {% if today_total and tdee %}
-    <div class="hidden md:block text-right">
-      <p class="text-xs text-muted mb-0.5">Energi hari ini</p>
-      <p class="text-2xl font-semibold text-ink">{{ today_total.energy_kcal|indo_number:0 }} <span class="text-sm font-normal text-muted">kkal</span></p>
+<!-- ═══ TOP HEADER BAR ═══ -->
+<div class="bg-white border-b border-hairline px-4 py-3 lg:px-8 lg:py-5 flex items-center justify-between">
+  <div>
+    <h1 class="text-lg lg:text-2xl font-semibold text-ink">Halo, {{ request.user.username }}! 👋</h1>
+    <p class="text-xs lg:text-sm text-muted mt-0.5">{% now "l, d F Y" %}</p>
+  </div>
+  <!-- Right side: hidden on mobile (base.html mobile top bar covers it) -->
+  <div class="hidden lg:flex items-center gap-5">
+    <!-- Energi hari ini -->
+    {% if today_total %}
+    <div class="flex flex-col items-end">
+      <span class="text-xs text-muted">Energi hari ini</span>
+      <div class="flex items-center gap-1.5 mt-0.5">
+        <span class="text-base">🔥</span>
+        <span class="text-xl font-semibold text-ink">{{ today_total.energy_kcal|indo_number:0 }}</span>
+        <span class="text-sm text-muted">kkal</span>
+      </div>
     </div>
     {% endif %}
+    <!-- Notification bell -->
+    <button class="relative p-2 rounded-xl text-muted hover:bg-surface-soft hover:text-ink transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+      </svg>
+    </button>
+    <!-- User avatar dropdown -->
+    <div class="relative" x-data="{ open: false }">
+      <button @click="open = !open"
+              class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-surface-soft transition-colors">
+        <span class="w-7 h-7 rounded-full bg-[#1b4332] text-white flex items-center justify-center text-xs font-semibold">
+          {{ user.username|first|upper }}
+        </span>
+        <span class="text-sm font-medium text-ink">{{ user.username }}</span>
+        <svg class="w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div x-show="open" @click.outside="open = false"
+           x-transition:enter="transition ease-out duration-100"
+           x-transition:enter-start="opacity-0 scale-95"
+           x-transition:enter-end="opacity-100 scale-100"
+           class="absolute right-0 top-full mt-1 w-44 bg-white rounded-xl shadow-lg border border-hairline py-1 z-50"
+           style="display:none">
+        <a href="{% url 'profile' %}" class="flex items-center gap-2 px-3 py-2 text-sm text-body hover:bg-surface-soft hover:text-ink transition-colors">
+          <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          Profil
+        </a>
+        <a href="{% url 'logout' %}" class="flex items-center gap-2 px-3 py-2 text-sm text-body hover:bg-surface-soft hover:text-ink transition-colors">
+          <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Keluar
+        </a>
+      </div>
+    </div>
   </div>
+  <!-- Mobile: show energy inline if available -->
+  {% if today_total %}
+  <div class="flex lg:hidden items-center gap-1.5">
+    <span class="text-sm">🔥</span>
+    <span class="text-base font-semibold text-ink">{{ today_total.energy_kcal|indo_number:0 }}</span>
+    <span class="text-xs text-muted">kkal</span>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ═══ CONTENT AREA ═══ -->
+<div class="p-4 lg:p-6 space-y-4 lg:space-y-6">
 
   <!-- Peringatan profil belum lengkap -->
   {% if not has_imt %}
-  <div class="flex items-start gap-4 px-5 py-4 bg-[#fffbeb] border-l-[3px] border-[#d97706] rounded-r-xl text-sm">
-    <svg class="w-5 h-5 text-[#d97706] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div class="flex items-start gap-3 px-4 py-3 bg-[#fffbeb] border-l-[3px] border-[#d97706] rounded-r-xl text-sm">
+    <svg class="w-4 h-4 text-[#d97706] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 3a9 9 0 110 18A9 9 0 0112 3z"/>
     </svg>
     <div>
       <p class="font-medium text-[#92400e]">Profil belum lengkap</p>
       <p class="text-[#92400e]/80 mt-0.5">
-        Tambahkan <a href="{% url 'imt-add' %}" class="underline underline-offset-2 font-medium">berat dan tinggi badan</a>
+        Tambahkan <a href="{% url 'imt-add' %}" class="underline font-medium">berat dan tinggi badan</a>
         untuk mengaktifkan kalkulasi gizi personal.
       </p>
     </div>
   </div>
   {% endif %}
 
-  <!-- Grid utama: IMT + aksi cepat | Ringkasan gizi -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <!-- ── GRID UTAMA ── -->
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
 
-    <!-- Kolom kiri: IMT + aksi cepat -->
-    <div class="space-y-4">
-      {% include 'components/imt_card.html' %}
+    <!-- Kolom kiri (2/5) -->
+    <div class="lg:col-span-2 space-y-4">
 
-      <!-- Aksi cepat -->
-      <div class="bg-white border border-hairline rounded-2xl p-5 shadow-sm">
+      <!-- IMT Card -->
+      <div class="rounded-2xl p-6 relative overflow-hidden
+        {% if imt_category.color == 'green' %}bg-sig-teal text-white
+        {% elif imt_category.color == 'red' %}bg-sig-coral text-white
+        {% elif imt_category.color == 'yellow' %}bg-[#fef9c3] border border-yellow-200
+        {% else %}bg-white border border-hairline{% endif %}">
+
+        <!-- Background scale icon -->
+        <div class="absolute right-4 top-4 opacity-[0.08]">
+          <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 3C7 3 3 7 3 12s4 9 9 9 9-4 9-9-4-9-9-9zm0 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 12H8v-1c0-2.67 5.33-4 8-4v1c-1.1 0-2.16.16-3.1.43L14 14h2v3z"/>
+          </svg>
+        </div>
+
+        <p class="text-xs font-semibold uppercase tracking-wider mb-3
+          {% if imt_category.color == 'green' or imt_category.color == 'red' %}text-white/55{% else %}text-muted{% endif %}">
+          Indeks Massa Tubuh
+        </p>
+
+        {% if imt_value %}
+        <div class="flex items-end gap-1.5 mb-3">
+          <span class="text-5xl font-light leading-none
+            {% if imt_category.color == 'green' or imt_category.color == 'red' %}text-white{% else %}text-ink{% endif %}">
+            {{ imt_value }}
+          </span>
+          <span class="text-sm pb-1
+            {% if imt_category.color == 'green' or imt_category.color == 'red' %}text-white/50{% else %}text-muted{% endif %}">
+            kg/m²
+          </span>
+        </div>
+
+        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold mb-2
+          {% if imt_category.color == 'green' %}bg-white/15 text-white
+          {% elif imt_category.color == 'red' %}bg-white/15 text-white
+          {% elif imt_category.color == 'yellow' %}bg-yellow-200 text-yellow-800
+          {% else %}bg-surface-strong text-body{% endif %}">
+          {{ imt_category.label }}
+        </span>
+
+        <p class="text-sm mt-1.5
+          {% if imt_category.color == 'green' or imt_category.color == 'red' %}text-white/65{% else %}text-body{% endif %}">
+          {{ imt_category.detail }}
+        </p>
+
+        <div class="mt-4 pt-3 border-t text-xs
+          {% if imt_category.color == 'green' or imt_category.color == 'red' %}border-white/15 text-white/40{% else %}border-hairline text-muted{% endif %}">
+          {{ latest_imt.weight_kg }} kg &middot; {{ latest_imt.height_cm }} cm &middot; {{ latest_imt.recorded_at|date:"d M Y" }}
+        </div>
+        {% else %}
+        <p class="text-4xl font-light text-white/40 mb-3">—</p>
+        <a href="{% url 'imt-add' %}" class="text-sm text-white/80 underline">Tambah data berat badan</a>
+        {% endif %}
+      </div>
+
+      <!-- Aksi Cepat -->
+      <div class="bg-white rounded-2xl p-5 border border-hairline shadow-sm">
         <p class="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Aksi Cepat</p>
         <div class="space-y-0.5">
           <a href="{% url 'daily-log' %}"
              class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-soft transition-colors group">
-            <span class="w-7 h-7 rounded-lg bg-sig-teal/10 flex items-center justify-center shrink-0">
-              <svg class="w-3.5 h-3.5 text-sig-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span class="w-7 h-7 rounded-lg bg-[#f0fdf4] flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5 text-[#1b4332]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
             </span>
@@ -78,7 +181,7 @@
              class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-soft transition-colors group">
             <span class="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
               <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
             </span>
             <span class="text-sm text-body group-hover:text-ink flex-1 transition-colors">Laporan Mingguan</span>
@@ -90,39 +193,138 @@
       </div>
     </div>
 
-    <!-- Kolom kanan: status energi + ringkasan gizi -->
-    <div class="md:col-span-2 space-y-5">
+    <!-- Kolom kanan (3/5) -->
+    <div class="lg:col-span-3 space-y-4">
 
-      <!-- Status energi hari ini -->
+      <!-- Status Energi -->
       {% if energy_status %}
-      <div class="rounded-2xl p-6 shadow-sm
-        {% if energy_status == 'Cukup' %}bg-sig-teal text-white
-        {% elif energy_status == 'Lebih' %}bg-sig-coral text-white
+      <div class="rounded-2xl px-6 py-5 relative overflow-hidden shadow-sm
+        {% if energy_status == 'Cukup' %}bg-sig-teal
+        {% elif energy_status == 'Lebih' %}bg-sig-coral
         {% else %}bg-white border border-hairline{% endif %}">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider opacity-60 mb-1">Status Energi Hari Ini</p>
-            <p class="text-3xl font-normal
+
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="text-xs font-semibold uppercase tracking-wider mb-1.5
+              {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white/55{% else %}text-muted{% endif %}">
+              Status Energi Hari Ini
+            </p>
+            <p class="text-3xl font-semibold mb-1
               {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white{% else %}text-ink{% endif %}">
               {{ energy_status }}
             </p>
             {% if today_total %}
-            <p class="text-sm mt-1.5
+            <p class="text-sm
               {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white/65{% else %}text-muted{% endif %}">
               {{ today_total.energy_kcal|indo_number:0 }} kkal dari {{ tdee|indo_number:0 }} kkal target
             </p>
             {% endif %}
           </div>
-          <div class="text-4xl opacity-20 select-none">
-            {% if energy_status == 'Cukup' %}✓{% elif energy_status == 'Lebih' %}⚠{% else %}○{% endif %}
+          <div class="opacity-20 select-none">
+            <svg class="w-10 h-10 {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}text-white{% else %}text-muted{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {% if energy_status == 'Lebih' %}
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              {% elif energy_status == 'Cukup' %}
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              {% else %}
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              {% endif %}
+            </svg>
           </div>
         </div>
+
+        {% if today_total and tdee %}
+        <div class="mt-4 h-1.5 rounded-full overflow-hidden
+          {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}bg-white/20{% else %}bg-surface-strong{% endif %}">
+          <div class="h-full rounded-full
+            {% if energy_status == 'Cukup' or energy_status == 'Lebih' %}bg-white/80{% else %}bg-primary{% endif %}"
+            style="width: min({{ progress.energy_kcal_pct|default:0 }}%, 100%)"></div>
+        </div>
+        {% endif %}
       </div>
       {% endif %}
 
-      {% include 'components/nutrition_summary.html' %}
+      <!-- Asupan Hari Ini -->
+      <div class="bg-white rounded-2xl p-6 border border-hairline shadow-sm">
+        <p class="text-xs font-semibold text-muted uppercase tracking-wider mb-4">Asupan Hari Ini</p>
 
-      <!-- Panduan porsi -->
+        {% if not tdee %}
+        <div class="py-4 text-center">
+          <p class="text-sm text-muted mb-2">Lengkapi profil untuk melihat target harianmu.</p>
+          <a href="{% url 'profile' %}" class="text-sm text-[#1b4332] underline">Lengkapi profil</a>
+        </div>
+
+        {% elif not today_total %}
+        <div class="py-4">
+          <p class="text-3xl font-light text-muted mb-1">0 <span class="text-base">kkal</span></p>
+          <p class="text-xs text-muted">dari {{ tdee|indo_number:0 }} kkal target</p>
+          <p class="text-xs text-muted mt-3">Belum ada makanan dicatat hari ini.</p>
+        </div>
+
+        {% else %}
+        <!-- Energi besar -->
+        <div class="mb-4">
+          <div class="flex items-end justify-between mb-2">
+            <div>
+              <span class="text-3xl font-semibold text-ink">{{ today_total.energy_kcal|indo_number:0 }}</span>
+              <span class="text-sm text-muted ml-1">kkal</span>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-muted">dari {{ tdee|indo_number:0 }} kkal</p>
+              <p class="text-sm font-semibold
+                {% with pct=progress.energy_kcal_pct %}
+                  {% if pct > 100 %}text-sig-coral{% elif pct >= 90 %}text-success{% else %}text-ink{% endif %}
+                {% endwith %}">
+                {{ progress.energy_kcal_pct|default:0 }}%
+              </p>
+            </div>
+          </div>
+          <div class="h-1.5 bg-surface-soft rounded-full overflow-hidden border border-hairline">
+            <div class="h-full rounded-full transition-all duration-500
+              {% with pct=progress.energy_kcal_pct %}
+                {% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-[#1b4332]{% endif %}
+              {% endwith %}"
+              style="width: min({{ progress.energy_kcal_pct|default:0 }}%, 100%)"></div>
+          </div>
+        </div>
+
+        <!-- Makronutrien -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-[#f8fafb] rounded-xl p-3.5">
+            <p class="text-xs text-muted mb-1">Protein</p>
+            <p class="text-lg font-semibold text-ink">{{ today_total.protein_g|indo_number }}g</p>
+            <div class="h-1 bg-surface-strong rounded-full overflow-hidden mt-2 mb-1.5">
+              <div class="h-full rounded-full
+                {% with pct=progress.protein_g_pct %}{% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-[#1b4332]{% endif %}{% endwith %}"
+                style="width: min({{ progress.protein_g_pct|default:0 }}%, 100%)"></div>
+            </div>
+            <p class="text-xs text-muted">/ {{ targets.protein_g|indo_number }}g</p>
+          </div>
+          <div class="bg-[#f8fafb] rounded-xl p-3.5">
+            <p class="text-xs text-muted mb-1">Lemak</p>
+            <p class="text-lg font-semibold text-ink">{{ today_total.fat_g|indo_number }}g</p>
+            <div class="h-1 bg-surface-strong rounded-full overflow-hidden mt-2 mb-1.5">
+              <div class="h-full rounded-full
+                {% with pct=progress.fat_g_pct %}{% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-[#1b4332]{% endif %}{% endwith %}"
+                style="width: min({{ progress.fat_g_pct|default:0 }}%, 100%)"></div>
+            </div>
+            <p class="text-xs text-muted">/ {{ targets.fat_g|indo_number }}g</p>
+          </div>
+          <div class="bg-[#f8fafb] rounded-xl p-3.5">
+            <p class="text-xs text-muted mb-1">Karbo</p>
+            <p class="text-lg font-semibold text-ink">{{ today_total.carbohydrate_g|indo_number }}g</p>
+            <div class="h-1 bg-surface-strong rounded-full overflow-hidden mt-2 mb-1.5">
+              <div class="h-full rounded-full
+                {% with pct=progress.carbohydrate_g_pct %}{% if pct > 100 %}bg-sig-coral{% elif pct >= 90 %}bg-success{% else %}bg-[#1b4332]{% endif %}{% endwith %}"
+                style="width: min({{ progress.carbohydrate_g_pct|default:0 }}%, 100%)"></div>
+            </div>
+            <p class="text-xs text-muted">/ {{ targets.carbohydrate_g|indo_number }}g</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Panduan Estimasi Porsi -->
       <div class="bg-sig-cream rounded-2xl p-5">
         <p class="text-xs font-semibold text-ink uppercase tracking-wider mb-3">Panduan Estimasi Porsi</p>
         <div class="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-muted">
@@ -138,85 +340,208 @@
     </div>
   </div>
 
-  <!-- Grafik tren 7 hari -->
-  <div class="bg-white border border-hairline rounded-2xl p-8 shadow-sm">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h2 class="text-lg font-medium text-ink">Tren Asupan 7 Hari Terakhir</h2>
-        <p class="text-xs text-muted mt-0.5">Energi harian (kkal) vs target TDEE</p>
-      </div>
-      <a href="{% url 'weekly-report' %}" class="text-xs text-muted hover:text-ink underline underline-offset-2 transition-colors">
-        Lihat laporan lengkap
-      </a>
-    </div>
-    {% if chart_data.has_nonzero %}
-    <div style="position:relative; height:220px;">
-      <canvas id="trendChart"></canvas>
-    </div>
-    <script>
-    (function () {
-      var labels     = {{ chart_data.labels_json|safe }};
-      var energyData = {{ chart_data.energy_json|safe }};
-      var tdee       = {{ tdee|default:0 }};
+  <!-- ── BOTTOM: CHART + RINGKASAN ── -->
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
 
-      function draw() {
-        if (typeof Chart === 'undefined') { return setTimeout(draw, 30); }
-        var ctx = document.getElementById('trendChart');
-        if (!ctx) return;
-        var colors = { primary: '#181d26', fade: 'rgba(10,61,58,0.10)', coral: '#aa2d00', grid: '#e0e2e6', muted: '#41454d' };
-        var datasets = [{
-          label: 'Energi (kkal)',
-          data: energyData,
-          borderColor: '#0a3d3a',
-          backgroundColor: colors.fade,
-          borderWidth: 2,
-          fill: true,
-          tension: 0.35,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          pointBackgroundColor: '#0a3d3a',
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 2,
-        }];
-        if (tdee > 0) {
-          datasets.push({
-            label: 'Target TDEE',
-            data: labels.map(function () { return tdee; }),
-            borderColor: colors.coral,
-            borderWidth: 1.5,
-            borderDash: [6, 3],
-            pointRadius: 0,
-            fill: false,
-            tension: 0,
+    <!-- Grafik tren -->
+    <div class="lg:col-span-3 bg-white rounded-2xl p-6 border border-hairline shadow-sm">
+      <div class="flex items-start justify-between mb-5">
+        <div>
+          <h2 class="text-base font-semibold text-ink">Tren Asupan 7 Hari Terakhir</h2>
+          <p class="text-xs text-muted mt-0.5">Energi harian (kkal) vs target TDEE</p>
+        </div>
+        <a href="{% url 'weekly-report' %}" class="text-xs text-muted hover:text-ink transition-colors">
+          Lihat laporan lengkap →
+        </a>
+      </div>
+      {% if chart_data.has_nonzero %}
+      <div style="position:relative; height:200px;">
+        <canvas id="trendChart"></canvas>
+      </div>
+      <script>
+      (function () {
+        var labels     = {{ chart_data.labels_json|safe }};
+        var energyData = {{ chart_data.energy_json|safe }};
+        var tdee       = {{ tdee|default:0 }};
+        function draw() {
+          if (typeof Chart === 'undefined') { return setTimeout(draw, 30); }
+          var ctx = document.getElementById('trendChart');
+          if (!ctx) return;
+          var datasets = [{
+            label: 'Asupan (kkal)',
+            data: energyData,
+            borderColor: '#1b4332',
+            backgroundColor: 'rgba(27,67,50,0.08)',
+            borderWidth: 2, fill: true, tension: 0.4,
+            pointRadius: 4, pointHoverRadius: 6,
+            pointBackgroundColor: '#1b4332', pointBorderColor: '#ffffff', pointBorderWidth: 2,
+          }];
+          if (tdee > 0) {
+            datasets.push({
+              label: 'Target TDEE (' + Math.round(tdee) + ' kkal)',
+              data: labels.map(function () { return tdee; }),
+              borderColor: '#aa2d00', borderWidth: 1.5,
+              borderDash: [6, 3], pointRadius: 0, fill: false, tension: 0,
+            });
+          }
+          new Chart(ctx, {
+            type: 'line',
+            data: { labels: labels, datasets: datasets },
+            options: {
+              responsive: true, maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } },
+                tooltip: { mode: 'index', intersect: false },
+              },
+              scales: {
+                x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } },
+                y: { beginAtZero: true, grid: { color: '#f0f0f0' }, border: { display: false }, ticks: { font: { size: 11 } } },
+              }
+            }
           });
         }
-        new Chart(ctx, {
-          type: 'line',
-          data: { labels: labels, datasets: datasets },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-              legend: { position: 'bottom' },
-              tooltip: { mode: 'index', intersect: false },
-            },
-            scales: {
-              x: { grid: { display: false }, border: { display: false } },
-              y: { beginAtZero: true, grid: { color: colors.grid }, border: { display: false } },
-            }
-          }
-        });
-      }
-      draw();
-    })();
-    </script>
-    {% else %}
-    <div class="flex items-center justify-center h-[160px] text-muted text-sm">
-      Belum ada data asupan minggu ini.
+        draw();
+      })();
+      </script>
+      {% else %}
+      <div class="flex items-center justify-center h-[160px] text-muted text-sm">
+        Belum ada data asupan minggu ini.
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
-  </div>
 
-</div>
+    <!-- Ringkasan donut -->
+    <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-hairline shadow-sm">
+      <h2 class="text-base font-semibold text-ink mb-5">Ringkasan Hari Ini</h2>
+
+      {% if today_total and progress %}
+      <!-- Donut chart -->
+      <div class="flex flex-col items-center mb-5">
+        <div class="relative" style="width:130px;height:130px;">
+          <canvas id="summaryDonut" width="130" height="130"></canvas>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="text-lg font-bold text-ink">{{ progress.energy_kcal_pct|default:0 }}%</span>
+            <span class="text-[10px] text-muted text-center leading-tight">dari<br>target</span>
+          </div>
+        </div>
+      </div>
+      <script>
+      (function() {
+        function draw() {
+          if (typeof Chart === 'undefined') return setTimeout(draw, 30);
+          var ctx = document.getElementById('summaryDonut');
+          if (!ctx) return;
+          var pct    = {{ progress.energy_kcal_pct|default:0 }};
+          var filled = Math.min(pct, 100);
+          var empty  = pct >= 100 ? 0.001 : 100 - pct;
+          var color  = pct > 100 ? '#aa2d00' : pct >= 90 ? '#1b4332' : '#52b788';
+          new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              datasets: [{
+                data: [filled, empty],
+                backgroundColor: [color, '#f0f0f0'],
+                borderWidth: 0,
+                hoverBorderWidth: 0,
+              }]
+            },
+            options: {
+              responsive: false,
+              cutout: '72%',
+              plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+          });
+        }
+        draw();
+      })();
+      </script>
+
+      <!-- Legend -->
+      <div class="space-y-2.5">
+        <a href="{% url 'weekly-report' %}" class="flex items-center justify-between group">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#22c55e] flex-shrink-0"></span>
+            <span class="text-sm text-body group-hover:text-ink transition-colors">Protein</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm font-semibold
+              {% if progress.protein_g_pct > 100 %}text-sig-coral{% else %}text-ink{% endif %}">
+              {{ progress.protein_g_pct|default:0 }}%
+            </span>
+            <svg class="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </a>
+        <a href="{% url 'weekly-report' %}" class="flex items-center justify-between group">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#f97316] flex-shrink-0"></span>
+            <span class="text-sm text-body group-hover:text-ink transition-colors">Lemak</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm font-semibold
+              {% if progress.fat_g_pct > 100 %}text-sig-coral{% else %}text-ink{% endif %}">
+              {{ progress.fat_g_pct|default:0 }}%
+            </span>
+            <svg class="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </a>
+        <a href="{% url 'weekly-report' %}" class="flex items-center justify-between group">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#3b82f6] flex-shrink-0"></span>
+            <span class="text-sm text-body group-hover:text-ink transition-colors">Karbo</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm font-semibold
+              {% if progress.carbohydrate_g_pct > 100 %}text-sig-coral{% else %}text-ink{% endif %}">
+              {{ progress.carbohydrate_g_pct|default:0 }}%
+            </span>
+            <svg class="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </a>
+        <a href="{% url 'weekly-report' %}" class="flex items-center justify-between group">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#d1d5db] flex-shrink-0"></span>
+            <span class="text-sm text-body group-hover:text-ink transition-colors">Serat</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm font-semibold text-ink">{{ progress.fiber_g_pct|default:"—" }}%</span>
+            <svg class="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </a>
+      </div>
+
+      <!-- Fiber tip jika kurang -->
+      {% if progress.fiber_g_pct and progress.fiber_g_pct < 90 %}
+      <div class="mt-4 pt-4 border-t border-hairline flex items-start gap-2.5">
+        <span class="text-base flex-shrink-0">🌿</span>
+        <p class="text-xs text-muted leading-relaxed">
+          <strong class="text-ink">Serat masih kurang {{ 100|add:"-1"|add:""|default:"" }}</strong>
+          dari kebutuhan harianmu.
+        </p>
+      </div>
+      {% endif %}
+
+      {% else %}
+      <div class="flex flex-col items-center justify-center py-8 text-center">
+        <div class="w-16 h-16 rounded-full bg-surface-soft flex items-center justify-center mb-3">
+          <svg class="w-7 h-7 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+        </div>
+        <p class="text-sm text-muted">Catat makanan dulu<br>untuk melihat ringkasan.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </div><!-- end bottom grid -->
+
+</div><!-- end content area -->
 {% endblock %}

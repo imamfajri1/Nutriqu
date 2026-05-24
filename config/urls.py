@@ -5,20 +5,20 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 
 
-def redirect_to_dashboard(request):
+def home_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-    return redirect('login')
+    return render(request, 'pages/landing.html')
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Redirect root ke dashboard atau login
-    path('', redirect_to_dashboard, name='home'),
+    # Landing page (unauthenticated) atau redirect ke dashboard
+    path('', home_view, name='home'),
 
     # Accounts
     path('', include('apps.accounts.urls')),

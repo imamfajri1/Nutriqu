@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Back leaf (lightest green) -->
+  <path d="M32 8 C38 10 40 20 36 28 C32 34 24 34 22 28 C26 20 30 12 32 8Z" fill="#74c69d"/>
+  <!-- Middle leaf -->
+  <path d="M24 5 C30 7 32 18 26 26 C22 32 14 30 14 22 C16 14 20 6 24 5Z" fill="#2d6a4f"/>
+  <!-- Front leaf (darkest) -->
+  <path d="M16 10 C24 10 26 22 20 30 C16 36 8 32 8 24 C8 16 12 10 16 10Z" fill="#1b4332"/>
+  <!-- Stem -->
+  <path d="M20 40 C20 40 18 32 18 26" stroke="#1b4332" stroke-width="2" stroke-linecap="round" fill="none"/>
+</svg>
